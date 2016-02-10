@@ -1,0 +1,36 @@
+{
+  "name": "creative-failure",
+  "description": "This is a website for Creative Failure, a company owned by Ross Collier",
+  "author": "Geoffrey Gross",
+  "version": "0.1.0",
+  "main": "static/js/app.js",
+  "private": true,
+  "scripts": {
+    "start": "gulp",
+    "build": "gulp sass react"
+  },
+  "dependencies": {
+    "node-sass-middleware": "0.8.0",
+    "gulp-autoprefixer": "^3.1.0",
+    "react": "0.14.0",
+    "react-dom": "0.14.0",
+    "underscore": "^1.7.0",
+    "superagent": "^1.5.0",
+    "moment": "2.10.6",
+    "flux": "^2.0.0",
+    "jquery": "1.11.3"
+  },
+  "devDependencies": {
+    "gulp": "^3.9.0",
+    "gulp-autoprefixer": "^3.1.0",
+    "gulp-load-plugins": "^1.1.0",
+    "gulp-sass": "^2.1.0",
+    "browserify": "~6.2.0",
+    "envify": "~3.0.0",
+    "react": "0.14.0",
+    "reactify": "^0.15",
+    "watchify": "~2.1.0",
+    "vinyl-source-stream": "1.1.0",
+    "del": "2.2.0"
+  }
+}

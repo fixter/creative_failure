@@ -1,8 +1,7 @@
 /**
  * Created by rayde on 1/12/2016.
  */
-
-window.React = require('react');
+var React = require('react');
 var ReactDom = require('react-dom');
 var HelloWorldApp = require('./components/HelloWorld.react');
 

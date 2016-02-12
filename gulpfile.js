@@ -33,6 +33,13 @@ gulp.task('sass', function() {
         .pipe(gulp.dest('static/build'));
 });
 
+gulp.task('foundation', function () {
+    gulp.src('bower_components/foundation-sites/dist/foundation.min.js')
+        .pipe(gulp.dest('static/build'));
+    gulp.src('bower_components/jquery/dist/jquery.min.js')
+        .pipe('static/build');
+});
+
 gulp.task('react', function() {
     browserify(reactPath)
         .transform(reactify)

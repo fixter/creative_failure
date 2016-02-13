@@ -43,9 +43,17 @@ gulp.task('foundation', function () {
 gulp.task('react', function() {
     browserify(reactPath)
         .transform(reactify)
-        .bundle()
+        .bundle().on('error', function(error){
+        console.log(error.toString());
+
+    })
         .pipe(source('bundle.js'))
         .pipe(gulp.dest('static/build'));
+});
+
+gulp.task('tmpFlipclock', function(){
+   gulp.src('node_modules/flipclock/compiled/flipclock.css')
+       .pipe(gulp.dest('static/build'));
 });
 
 gulp.task('watch', function(){

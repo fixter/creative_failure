@@ -5,12 +5,21 @@
 var React = require('react');
 var ReactDom = require('react-dom');
 var HelloWorldApp = require('./components/HelloWorld.react');
+var FlipClock = require('flipclock');
+
+$(document).foundation();
+
+//Do a tmp countdown to ross collier soundfest 2016
+var countdownClock = $('.countdown-timer').FlipClock(new Date(2016, 4, 3), {
+    countdown: true,
+    clockFace: 'DailyCounter'
+});
 
 //HelloWorldApp Component should be deleted. It is here just to make sure things work.
-ReactDom.render(React.createElement(HelloWorldApp, null), document.getElementById('react-container'));
+//ReactDom.render(<HelloWorldApp/>, document.getElementById('react-container'));
 
 
-},{"./components/HelloWorld.react":314,"react":313,"react-dom":158}],2:[function(require,module,exports){
+},{"./components/HelloWorld.react":315,"flipclock":158,"react":314,"react-dom":159}],2:[function(require,module,exports){
 /**
  * Copyright 2013-2015, Facebook, Inc.
  * All rights reserved.
@@ -18982,321 +18991,3077 @@ process.chdir = function (dir) {
 };
 
 },{}],158:[function(require,module,exports){
+/*
+	Base.js, version 1.1a
+	Copyright 2006-2010, Dean Edwards
+	License: http://www.opensource.org/licenses/mit-license.php
+*/
+
+var Base = function() {
+	// dummy
+};
+
+Base.extend = function(_instance, _static) { // subclass
+	
+	"use strict";
+	
+	var extend = Base.prototype.extend;
+	
+	// build the prototype
+	Base._prototyping = true;
+	
+	var proto = new this();
+	
+	extend.call(proto, _instance);
+	
+	proto.base = function() {
+	// call this method from any other method to invoke that method's ancestor
+	};
+
+	delete Base._prototyping;
+	
+	// create the wrapper for the constructor function
+	//var constructor = proto.constructor.valueOf(); //-dean
+	var constructor = proto.constructor;
+	var klass = proto.constructor = function() {
+		if (!Base._prototyping) {
+			if (this._constructing || this.constructor == klass) { // instantiation
+				this._constructing = true;
+				constructor.apply(this, arguments);
+				delete this._constructing;
+			} else if (arguments[0] !== null) { // casting
+				return (arguments[0].extend || extend).call(arguments[0], proto);
+			}
+		}
+	};
+	
+	// build the class interface
+	klass.ancestor = this;
+	klass.extend = this.extend;
+	klass.forEach = this.forEach;
+	klass.implement = this.implement;
+	klass.prototype = proto;
+	klass.toString = this.toString;
+	klass.valueOf = function(type) {
+		//return (type == "object") ? klass : constructor; //-dean
+		return (type == "object") ? klass : constructor.valueOf();
+	};
+	extend.call(klass, _static);
+	// class initialisation
+	if (typeof klass.init == "function") klass.init();
+	return klass;
+};
+
+Base.prototype = {	
+	extend: function(source, value) {
+		if (arguments.length > 1) { // extending with a name/value pair
+			var ancestor = this[source];
+			if (ancestor && (typeof value == "function") && // overriding a method?
+				// the valueOf() comparison is to avoid circular references
+				(!ancestor.valueOf || ancestor.valueOf() != value.valueOf()) &&
+				/\bbase\b/.test(value)) {
+				// get the underlying method
+				var method = value.valueOf();
+				// override
+				value = function() {
+					var previous = this.base || Base.prototype.base;
+					this.base = ancestor;
+					var returnValue = method.apply(this, arguments);
+					this.base = previous;
+					return returnValue;
+				};
+				// point to the underlying method
+				value.valueOf = function(type) {
+					return (type == "object") ? value : method;
+				};
+				value.toString = Base.toString;
+			}
+			this[source] = value;
+		} else if (source) { // extending with an object literal
+			var extend = Base.prototype.extend;
+			// if this object has a customised extend method then use it
+			if (!Base._prototyping && typeof this != "function") {
+				extend = this.extend || extend;
+			}
+			var proto = {toSource: null};
+			// do the "toString" and other methods manually
+			var hidden = ["constructor", "toString", "valueOf"];
+			// if we are prototyping then include the constructor
+			var i = Base._prototyping ? 0 : 1;
+			while (key = hidden[i++]) {
+				if (source[key] != proto[key]) {
+					extend.call(this, key, source[key]);
+
+				}
+			}
+			// copy each of the source object's properties to this object
+			for (var key in source) {
+				if (!proto[key]) extend.call(this, key, source[key]);
+			}
+		}
+		return this;
+	}
+};
+
+// initialise
+Base = Base.extend({
+	constructor: function() {
+		this.extend(arguments[0]);
+	}
+}, {
+	ancestor: Object,
+	version: "1.1",
+	
+	forEach: function(object, block, context) {
+		for (var key in object) {
+			if (this.prototype[key] === undefined) {
+				block.call(context, object[key], key, object);
+			}
+		}
+	},
+		
+	implement: function() {
+		for (var i = 0; i < arguments.length; i++) {
+			if (typeof arguments[i] == "function") {
+				// if it's a function, call it
+				arguments[i](this.prototype);
+			} else {
+				// add the interface using the extend method
+				this.prototype.extend(arguments[i]);
+			}
+		}
+		return this;
+	},
+	
+	toString: function() {
+		return String(this.valueOf());
+	}
+});
+/*jshint smarttabs:true */
+
+var FlipClock;
+	
+/**
+ * FlipClock.js
+ *
+ * @author     Justin Kimbrell
+ * @copyright  2013 - Objective HTML, LLC
+ * @licesnse   http://www.opensource.org/licenses/mit-license.php
+ */
+	
+(function($) {
+	
+	"use strict";
+	
+	/**
+	 * FlipFlock Helper
+	 *
+	 * @param  object  A jQuery object or CSS select
+	 * @param  int     An integer used to start the clock (no. seconds)
+	 * @param  object  An object of properties to override the default	
+	 */
+	 
+	FlipClock = function(obj, digit, options) {
+		if(digit instanceof Object && digit instanceof Date === false) {
+			options = digit;
+			digit = 0;
+		}
+
+		return new FlipClock.Factory(obj, digit, options);
+	};
+
+	/**
+	 * The global FlipClock.Lang object
+	 */
+
+	FlipClock.Lang = {};
+	
+	/**
+	 * The Base FlipClock class is used to extend all other FlipFlock
+	 * classes. It handles the callbacks and the basic setters/getters
+	 *	
+	 * @param 	object  An object of the default properties
+	 * @param 	object  An object of properties to override the default	
+	 */
+
+	FlipClock.Base = Base.extend({
+		
+		/**
+		 * Build Date
+		 */
+		 
+		buildDate: '2014-12-12',
+		
+		/**
+		 * Version
+		 */
+		 
+		version: '0.7.7',
+		
+		/**
+		 * Sets the default options
+		 *
+		 * @param	object 	The default options
+		 * @param	object 	The override options
+		 */
+		 
+		constructor: function(_default, options) {
+			if(typeof _default !== "object") {
+				_default = {};
+			}
+			if(typeof options !== "object") {
+				options = {};
+			}
+			this.setOptions($.extend(true, {}, _default, options));
+		},
+		
+		/**
+		 * Delegates the callback to the defined method
+		 *
+		 * @param	object 	The default options
+		 * @param	object 	The override options
+		 */
+		 
+		callback: function(method) {
+		 	if(typeof method === "function") {
+				var args = [];
+								
+				for(var x = 1; x <= arguments.length; x++) {
+					if(arguments[x]) {
+						args.push(arguments[x]);
+					}
+				}
+				
+				method.apply(this, args);
+			}
+		},
+		 
+		/**
+		 * Log a string into the console if it exists
+		 *
+		 * @param 	string 	The name of the option
+		 * @return	mixed
+		 */		
+		 
+		log: function(str) {
+			if(window.console && console.log) {
+				console.log(str);
+			}
+		},
+		 
+		/**
+		 * Get an single option value. Returns false if option does not exist
+		 *
+		 * @param 	string 	The name of the option
+		 * @return	mixed
+		 */		
+		 
+		getOption: function(index) {
+			if(this[index]) {
+				return this[index];
+			}
+			return false;
+		},
+		
+		/**
+		 * Get all options
+		 *
+		 * @return	bool
+		 */		
+		 
+		getOptions: function() {
+			return this;
+		},
+		
+		/**
+		 * Set a single option value
+		 *
+		 * @param 	string 	The name of the option
+		 * @param 	mixed 	The value of the option
+		 */		
+		 
+		setOption: function(index, value) {
+			this[index] = value;
+		},
+		
+		/**
+		 * Set a multiple options by passing a JSON object
+		 *
+		 * @param 	object 	The object with the options
+		 * @param 	mixed 	The value of the option
+		 */		
+		
+		setOptions: function(options) {
+			for(var key in options) {
+	  			if(typeof options[key] !== "undefined") {
+		  			this.setOption(key, options[key]);
+		  		}
+		  	}
+		}
+		
+	});
+	
+}(jQuery));
+
+/*jshint smarttabs:true */
+
+/**
+ * FlipClock.js
+ *
+ * @author     Justin Kimbrell
+ * @copyright  2013 - Objective HTML, LLC
+ * @licesnse   http://www.opensource.org/licenses/mit-license.php
+ */
+	
+(function($) {
+	
+	"use strict";
+	
+	/**
+	 * The FlipClock Face class is the base class in which to extend
+	 * all other FlockClock.Face classes.
+	 *
+	 * @param 	object  The parent FlipClock.Factory object
+	 * @param 	object  An object of properties to override the default	
+	 */
+	 
+	FlipClock.Face = FlipClock.Base.extend({
+		
+		/**
+		 * Sets whether or not the clock should start upon instantiation
+		 */
+		 
+		autoStart: true,
+
+		/**
+		 * An array of jQuery objects used for the dividers (the colons)
+		 */
+		 
+		dividers: [],
+
+		/**
+		 * An array of FlipClock.List objects
+		 */		
+		 
+		factory: false,
+		
+		/**
+		 * An array of FlipClock.List objects
+		 */		
+		 
+		lists: [],
+
+		/**
+		 * Constructor
+		 *
+		 * @param 	object  The parent FlipClock.Factory object
+		 * @param 	object  An object of properties to override the default	
+		 */
+		 
+		constructor: function(factory, options) {
+			this.dividers = [];
+			this.lists = [];
+			this.base(options);
+			this.factory = factory;
+		},
+		
+		/**
+		 * Build the clock face
+		 */
+		 
+		build: function() {
+			if(this.autoStart) {
+				this.start();
+			}
+		},
+		
+		/**
+		 * Creates a jQuery object used for the digit divider
+		 *
+		 * @param	mixed 	The divider label text
+		 * @param	mixed	Set true to exclude the dots in the divider. 
+		 *					If not set, is false.
+		 */
+		 
+		createDivider: function(label, css, excludeDots) {
+			if(typeof css == "boolean" || !css) {
+				excludeDots = css;
+				css = label;
+			}
+
+			var dots = [
+				'<span class="'+this.factory.classes.dot+' top"></span>',
+				'<span class="'+this.factory.classes.dot+' bottom"></span>'
+			].join('');
+
+			if(excludeDots) {
+				dots = '';	
+			}
+
+			label = this.factory.localize(label);
+
+			var html = [
+				'<span class="'+this.factory.classes.divider+' '+(css ? css : '').toLowerCase()+'">',
+					'<span class="'+this.factory.classes.label+'">'+(label ? label : '')+'</span>',
+					dots,
+				'</span>'
+			];	
+			
+			var $html = $(html.join(''));
+
+			this.dividers.push($html);
+
+			return $html;
+		},
+		
+		/**
+		 * Creates a FlipClock.List object and appends it to the DOM
+		 *
+		 * @param	mixed 	The digit to select in the list
+		 * @param	object  An object to override the default properties
+		 */
+		 
+		createList: function(digit, options) {
+			if(typeof digit === "object") {
+				options = digit;
+				digit = 0;
+			}
+
+			var obj = new FlipClock.List(this.factory, digit, options);
+		
+			this.lists.push(obj);
+
+			return obj;
+		},
+		
+		/**
+		 * Triggers when the clock is reset
+		 */
+
+		reset: function() {
+			this.factory.time = new FlipClock.Time(
+				this.factory, 
+				this.factory.original ? Math.round(this.factory.original) : 0,
+				{
+					minimumDigits: this.factory.minimumDigits
+				}
+			);
+
+			this.flip(this.factory.original, false);
+		},
+
+		/**
+		 * Append a newly created list to the clock
+		 */
+
+		appendDigitToClock: function(obj) {
+			obj.$el.append(false);
+		},
+
+		/**
+		 * Add a digit to the clock face
+		 */
+		 
+		addDigit: function(digit) {
+			var obj = this.createList(digit, {
+				classes: {
+					active: this.factory.classes.active,
+					before: this.factory.classes.before,
+					flip: this.factory.classes.flip
+				}
+			});
+
+			this.appendDigitToClock(obj);
+		},
+		
+		/**
+		 * Triggers when the clock is started
+		 */
+		 
+		start: function() {},
+		
+		/**
+		 * Triggers when the time on the clock stops
+		 */
+		 
+		stop: function() {},
+		
+		/**
+		 * Auto increments/decrements the value of the clock face
+		 */
+		 
+		autoIncrement: function() {
+			if(!this.factory.countdown) {
+				this.increment();
+			}
+			else {
+				this.decrement();
+			}
+		},
+
+		/**
+		 * Increments the value of the clock face
+		 */
+		 
+		increment: function() {
+			this.factory.time.addSecond();
+		},
+
+		/**
+		 * Decrements the value of the clock face
+		 */
+
+		decrement: function() {
+			if(this.factory.time.getTimeSeconds() == 0) {
+	        	this.factory.stop()
+			}
+			else {
+				this.factory.time.subSecond();
+			}
+		},
+			
+		/**
+		 * Triggers when the numbers on the clock flip
+		 */
+		 
+		flip: function(time, doNotAddPlayClass) {
+			var t = this;
+
+			$.each(time, function(i, digit) {
+				var list = t.lists[i];
+
+				if(list) {
+					if(!doNotAddPlayClass && digit != list.digit) {
+						list.play();	
+					}
+
+					list.select(digit);
+				}	
+				else {
+					t.addDigit(digit);
+				}
+			});
+		}
+					
+	});
+	
+}(jQuery));
+
+/*jshint smarttabs:true */
+
+/**
+ * FlipClock.js
+ *
+ * @author     Justin Kimbrell
+ * @copyright  2013 - Objective HTML, LLC
+ * @licesnse   http://www.opensource.org/licenses/mit-license.php
+ */
+	
+(function($) {
+	
+	"use strict";
+	
+	/**
+	 * The FlipClock Factory class is used to build the clock and manage
+	 * all the public methods.
+	 *
+	 * @param 	object  A jQuery object or CSS selector used to fetch
+	 				    the wrapping DOM nodes
+	 * @param 	mixed   This is the digit used to set the clock. If an 
+	 				    object is passed, 0 will be used.	
+	 * @param 	object  An object of properties to override the default	
+	 */
+	 	
+	FlipClock.Factory = FlipClock.Base.extend({
+		
+		/**
+		 * The clock's animation rate.
+		 * 
+		 * Note, currently this property doesn't do anything.
+		 * This property is here to be used in the future to
+		 * programmaticaly set the clock's animation speed
+		 */		
+
+		animationRate: 1000,
+
+		/**
+		 * Auto start the clock on page load (True|False)
+		 */	
+		 
+		autoStart: true,
+		
+		/**
+		 * The callback methods
+		 */		
+		 
+		callbacks: {
+			destroy: false,
+			create: false,
+			init: false,
+			interval: false,
+			start: false,
+			stop: false,
+			reset: false
+		},
+		
+		/**
+		 * The CSS classes
+		 */		
+		 
+		classes: {
+			active: 'flip-clock-active',
+			before: 'flip-clock-before',
+			divider: 'flip-clock-divider',
+			dot: 'flip-clock-dot',
+			label: 'flip-clock-label',
+			flip: 'flip',
+			play: 'play',
+			wrapper: 'flip-clock-wrapper'
+		},
+		
+		/**
+		 * The name of the clock face class in use
+		 */	
+		 
+		clockFace: 'HourlyCounter',
+		 
+		/**
+		 * The name of the clock face class in use
+		 */	
+		 
+		countdown: false,
+		 
+		/**
+		 * The name of the default clock face class to use if the defined
+		 * clockFace variable is not a valid FlipClock.Face object
+		 */	
+		 
+		defaultClockFace: 'HourlyCounter',
+		 
+		/**
+		 * The default language
+		 */	
+		 
+		defaultLanguage: 'english',
+		 
+		/**
+		 * The jQuery object
+		 */		
+		 
+		$el: false,
+
+		/**
+		 * The FlipClock.Face object
+		 */	
+		 
+		face: true,
+		 
+		/**
+		 * The language object after it has been loaded
+		 */	
+		 
+		lang: false,
+		 
+		/**
+		 * The language being used to display labels (string)
+		 */	
+		 
+		language: 'english',
+		 
+		/**
+		 * The minimum digits the clock must have
+		 */		
+
+		minimumDigits: 0,
+
+		/**
+		 * The original starting value of the clock. Used for the reset method.
+		 */		
+		 
+		original: false,
+		
+		/**
+		 * Is the clock running? (True|False)
+		 */		
+		 
+		running: false,
+		
+		/**
+		 * The FlipClock.Time object
+		 */		
+		 
+		time: false,
+		
+		/**
+		 * The FlipClock.Timer object
+		 */		
+		 
+		timer: false,
+		
+		/**
+		 * The jQuery object (depcrecated)
+		 */		
+		 
+		$wrapper: false,
+		
+		/**
+		 * Constructor
+		 *
+		 * @param   object  The wrapping jQuery object
+		 * @param	object  Number of seconds used to start the clock
+		 * @param	object 	An object override options
+		 */
+		 
+		constructor: function(obj, digit, options) {
+
+			if(!options) {
+				options = {};
+			}
+
+			this.lists = [];
+			this.running = false;
+			this.base(options);	
+
+			this.$el = $(obj).addClass(this.classes.wrapper);
+
+			// Depcrated support of the $wrapper property.
+			this.$wrapper = this.$el;
+
+			this.original = (digit instanceof Date) ? digit : (digit ? Math.round(digit) : 0);
+
+			this.time = new FlipClock.Time(this, this.original, {
+				minimumDigits: this.minimumDigits,
+				animationRate: this.animationRate 
+			});
+
+			this.timer = new FlipClock.Timer(this, options);
+
+			this.loadLanguage(this.language);
+			
+			this.loadClockFace(this.clockFace, options);
+
+			if(this.autoStart) {
+				this.start();
+			}
+
+		},
+		
+		/**
+		 * Load the FlipClock.Face object
+		 *
+		 * @param	object  The name of the FlickClock.Face class
+		 * @param	object 	An object override options
+		 */
+		 
+		loadClockFace: function(name, options) {	
+			var face, suffix = 'Face', hasStopped = false;
+			
+			name = name.ucfirst()+suffix;
+
+			if(this.face.stop) {
+				this.stop();
+				hasStopped = true;
+			}
+
+			this.$el.html('');
+
+			this.time.minimumDigits = this.minimumDigits;
+			
+			if(FlipClock[name]) {
+				face = new FlipClock[name](this, options);
+			}
+			else {
+				face = new FlipClock[this.defaultClockFace+suffix](this, options);
+			}
+			
+			face.build();
+
+			this.face = face
+
+			if(hasStopped) {
+				this.start();
+			}
+			
+			return this.face;
+		},
+				
+		/**
+		 * Load the FlipClock.Lang object
+		 *
+		 * @param	object  The name of the language to load
+		 */
+		 
+		loadLanguage: function(name) {	
+			var lang;
+			
+			if(FlipClock.Lang[name.ucfirst()]) {
+				lang = FlipClock.Lang[name.ucfirst()];
+			}
+			else if(FlipClock.Lang[name]) {
+				lang = FlipClock.Lang[name];
+			}
+			else {
+				lang = FlipClock.Lang[this.defaultLanguage];
+			}
+			
+			return this.lang = lang;
+		},
+					
+		/**
+		 * Localize strings into various languages
+		 *
+		 * @param	string  The index of the localized string
+		 * @param	object  Optionally pass a lang object
+		 */
+
+		localize: function(index, obj) {
+			var lang = this.lang;
+
+			if(!index) {
+				return null;
+			}
+
+			var lindex = index.toLowerCase();
+
+			if(typeof obj == "object") {
+				lang = obj;
+			}
+
+			if(lang && lang[lindex]) {
+				return lang[lindex];
+			}
+
+			return index;
+		},
+		 
+
+		/**
+		 * Starts the clock
+		 */
+		 
+		start: function(callback) {
+			var t = this;
+
+			if(!t.running && (!t.countdown || t.countdown && t.time.time > 0)) {
+				t.face.start(t.time);
+				t.timer.start(function() {
+					t.flip();
+					
+					if(typeof callback === "function") {
+						callback();
+					}	
+				});
+			}
+			else {
+				t.log('Trying to start timer when countdown already at 0');
+			}
+		},
+		
+		/**
+		 * Stops the clock
+		 */
+		 
+		stop: function(callback) {
+			this.face.stop();
+			this.timer.stop(callback);
+			
+			for(var x in this.lists) {
+				if (this.lists.hasOwnProperty(x)) {
+					this.lists[x].stop();
+				}
+			}	
+		},
+		
+		/**
+		 * Reset the clock
+		 */
+		 
+		reset: function(callback) {
+			this.timer.reset(callback);
+			this.face.reset();
+		},
+		
+		/**
+		 * Sets the clock time
+		 */
+		 
+		setTime: function(time) {
+			this.time.time = time;
+			this.flip(true);		
+		},
+		
+		/**
+		 * Get the clock time
+		 *
+		 * @return  object  Returns a FlipClock.Time object
+		 */
+		 
+		getTime: function(time) {
+			return this.time;		
+		},
+		
+		/**
+		 * Changes the increment of time to up or down (add/sub)
+		 */
+		 
+		setCountdown: function(value) {
+			var running = this.running;
+			
+			this.countdown = value ? true : false;
+				
+			if(running) {
+				this.stop();
+				this.start();
+			}
+		},
+		
+		/**
+		 * Flip the digits on the clock
+		 *
+		 * @param  array  An array of digits	 
+		 */
+		flip: function(doNotAddPlayClass) {	
+			this.face.flip(false, doNotAddPlayClass);
+		}
+		
+	});
+		
+}(jQuery));
+
+/*jshint smarttabs:true */
+
+/**
+ * FlipClock.js
+ *
+ * @author     Justin Kimbrell
+ * @copyright  2013 - Objective HTML, LLC
+ * @licesnse   http://www.opensource.org/licenses/mit-license.php
+ */
+	
+(function($) {
+	
+	"use strict";
+	
+	/**
+	 * The FlipClock List class is used to build the list used to create 
+	 * the card flip effect. This object fascilates selecting the correct
+	 * node by passing a specific digit.
+	 *
+	 * @param 	object  A FlipClock.Factory object
+	 * @param 	mixed   This is the digit used to set the clock. If an 
+	 *				    object is passed, 0 will be used.	
+	 * @param 	object  An object of properties to override the default	
+	 */
+	 	
+	FlipClock.List = FlipClock.Base.extend({
+		
+		/**
+		 * The digit (0-9)
+		 */		
+		 
+		digit: 0,
+		
+		/**
+		 * The CSS classes
+		 */		
+		 
+		classes: {
+			active: 'flip-clock-active',
+			before: 'flip-clock-before',
+			flip: 'flip'	
+		},
+				
+		/**
+		 * The parent FlipClock.Factory object
+		 */		
+		 
+		factory: false,
+		
+		/**
+		 * The jQuery object
+		 */		
+		 
+		$el: false,
+
+		/**
+		 * The jQuery object (deprecated)
+		 */		
+		 
+		$obj: false,
+		
+		/**
+		 * The items in the list
+		 */		
+		 
+		items: [],
+		
+		/**
+		 * The last digit
+		 */		
+		 
+		lastDigit: 0,
+			
+		/**
+		 * Constructor
+		 *
+		 * @param  object  A FlipClock.Factory object
+		 * @param  int     An integer use to select the correct digit
+		 * @param  object  An object to override the default properties	 
+		 */
+		 
+		constructor: function(factory, digit, options) {
+			this.factory = factory;
+			this.digit = digit;
+			this.lastDigit = digit;
+			this.$el = this.createList();
+			
+			// Depcrated support of the $obj property.
+			this.$obj = this.$el;
+
+			if(digit > 0) {
+				this.select(digit);
+			}
+
+			this.factory.$el.append(this.$el);
+		},
+		
+		/**
+		 * Select the digit in the list
+		 *
+		 * @param  int  A digit 0-9	 
+		 */
+		 
+		select: function(digit) {
+			if(typeof digit === "undefined") {
+				digit = this.digit;
+			}
+			else {
+				this.digit = digit;
+			}
+
+			if(this.digit != this.lastDigit) {
+				var $delete = this.$el.find('.'+this.classes.before).removeClass(this.classes.before);
+
+				this.$el.find('.'+this.classes.active).removeClass(this.classes.active)
+													  .addClass(this.classes.before);
+
+				this.appendListItem(this.classes.active, this.digit);
+
+				$delete.remove();
+
+				this.lastDigit = this.digit;
+			}	
+		},
+		
+		/**
+		 * Adds the play class to the DOM object
+		 */
+		 		
+		play: function() {
+			this.$el.addClass(this.factory.classes.play);
+		},
+		
+		/**
+		 * Removes the play class to the DOM object 
+		 */
+		 
+		stop: function() {
+			var t = this;
+
+			setTimeout(function() {
+				t.$el.removeClass(t.factory.classes.play);
+			}, this.factory.timer.interval);
+		},
+		
+		/**
+		 * Creates the list item HTML and returns as a string 
+		 */
+		 
+		createListItem: function(css, value) {
+			return [
+				'<li class="'+(css ? css : '')+'">',
+					'<a href="#">',
+						'<div class="up">',
+							'<div class="shadow"></div>',
+							'<div class="inn">'+(value ? value : '')+'</div>',
+						'</div>',
+						'<div class="down">',
+							'<div class="shadow"></div>',
+							'<div class="inn">'+(value ? value : '')+'</div>',
+						'</div>',
+					'</a>',
+				'</li>'
+			].join('');
+		},
+
+		/**
+		 * Append the list item to the parent DOM node 
+		 */
+
+		appendListItem: function(css, value) {
+			var html = this.createListItem(css, value);
+
+			this.$el.append(html);
+		},
+
+		/**
+		 * Create the list of digits and appends it to the DOM object 
+		 */
+		 
+		createList: function() {
+
+			var lastDigit = this.getPrevDigit() ? this.getPrevDigit() : this.digit;
+
+			var html = $([
+				'<ul class="'+this.classes.flip+' '+(this.factory.running ? this.factory.classes.play : '')+'">',
+					this.createListItem(this.classes.before, lastDigit),
+					this.createListItem(this.classes.active, this.digit),
+				'</ul>'
+			].join(''));
+					
+			return html;
+		},
+
+		getNextDigit: function() {
+			return this.digit == 9 ? 0 : this.digit + 1;
+		},
+
+		getPrevDigit: function() {
+			return this.digit == 0 ? 9 : this.digit - 1;
+		}
+
+	});
+	
+	
+}(jQuery));
+
+/*jshint smarttabs:true */
+
+/**
+ * FlipClock.js
+ *
+ * @author     Justin Kimbrell
+ * @copyright  2013 - Objective HTML, LLC
+ * @licesnse   http://www.opensource.org/licenses/mit-license.php
+ */
+	
+(function($) {
+	
+	"use strict";
+	
+	/**
+	 * Capitalize the first letter in a string
+	 *
+	 * @return string
+	 */
+	 
+	String.prototype.ucfirst = function() {
+		return this.substr(0, 1).toUpperCase() + this.substr(1);
+	};
+	
+	/**
+	 * jQuery helper method
+	 *
+	 * @param  int     An integer used to start the clock (no. seconds)
+	 * @param  object  An object of properties to override the default	
+	 */
+	 
+	$.fn.FlipClock = function(digit, options) {	
+		return new FlipClock($(this), digit, options);
+	};
+	
+	/**
+	 * jQuery helper method
+	 *
+	 * @param  int     An integer used to start the clock (no. seconds)
+	 * @param  object  An object of properties to override the default	
+	 */
+	 
+	$.fn.flipClock = function(digit, options) {
+		return $.fn.FlipClock(digit, options);
+	};
+	
+}(jQuery));
+
+/*jshint smarttabs:true */
+
+/**
+ * FlipClock.js
+ *
+ * @author     Justin Kimbrell
+ * @copyright  2013 - Objective HTML, LLC
+ * @licesnse   http://www.opensource.org/licenses/mit-license.php
+ */
+	
+(function($) {
+	
+	"use strict";
+			
+	/**
+	 * The FlipClock Time class is used to manage all the time 
+	 * calculations.
+	 *
+	 * @param 	object  A FlipClock.Factory object
+	 * @param 	mixed   This is the digit used to set the clock. If an 
+	 *				    object is passed, 0 will be used.	
+	 * @param 	object  An object of properties to override the default	
+	 */
+	 	
+	FlipClock.Time = FlipClock.Base.extend({
+		
+		/**
+		 * The time (in seconds) or a date object
+		 */		
+		 
+		time: 0,
+		
+		/**
+		 * The parent FlipClock.Factory object
+		 */		
+		 
+		factory: false,
+		
+		/**
+		 * The minimum number of digits the clock face must have
+		 */		
+		 
+		minimumDigits: 0,
+
+		/**
+		 * Constructor
+		 *
+		 * @param  object  A FlipClock.Factory object
+		 * @param  int     An integer use to select the correct digit
+		 * @param  object  An object to override the default properties	 
+		 */
+		 
+		constructor: function(factory, time, options) {
+			if(typeof options != "object") {
+				options = {};
+			}
+
+			if(!options.minimumDigits) {
+				options.minimumDigits = factory.minimumDigits;
+			}
+
+			this.base(options);
+			this.factory = factory;
+
+			if(time) {
+				this.time = time;
+			}
+		},
+
+		/**
+		 * Convert a string or integer to an array of digits
+		 *
+		 * @param   mixed  String or Integer of digits	 
+		 * @return  array  An array of digits 
+		 */
+		 
+		convertDigitsToArray: function(str) {
+			var data = [];
+			
+			str = str.toString();
+			
+			for(var x = 0;x < str.length; x++) {
+				if(str[x].match(/^\d*$/g)) {
+					data.push(str[x]);	
+				}
+			}
+			
+			return data;
+		},
+		
+		/**
+		 * Get a specific digit from the time integer
+		 *
+		 * @param   int    The specific digit to select from the time	 
+		 * @return  mixed  Returns FALSE if no digit is found, otherwise
+		 *				   the method returns the defined digit	 
+		 */
+		 
+		digit: function(i) {
+			var timeStr = this.toString();
+			var length  = timeStr.length;
+			
+			if(timeStr[length - i])	 {
+				return timeStr[length - i];
+			}
+			
+			return false;
+		},
+
+		/**
+		 * Formats any array of digits into a valid array of digits
+		 *
+		 * @param   mixed  An array of digits	 
+		 * @return  array  An array of digits 
+		 */
+		 
+		digitize: function(obj) {
+			var data = [];
+
+			$.each(obj, function(i, value) {
+				value = value.toString();
+				
+				if(value.length == 1) {
+					value = '0'+value;
+				}
+				
+				for(var x = 0; x < value.length; x++) {
+					data.push(value.charAt(x));
+				}				
+			});
+
+			if(data.length > this.minimumDigits) {
+				this.minimumDigits = data.length;
+			}
+			
+			if(this.minimumDigits > data.length) {
+				for(var x = data.length; x < this.minimumDigits; x++) {
+					data.unshift('0');
+				}
+			}
+
+			return data;
+		},
+		
+		/**
+		 * Gets a new Date object for the current time
+		 *
+		 * @return  array  Returns a Date object
+		 */
+
+		getDateObject: function() {
+			if(this.time instanceof Date) {
+				return this.time;
+			}
+
+			return new Date((new Date()).getTime() + this.getTimeSeconds() * 1000);
+		},
+		
+		/**
+		 * Gets a digitized daily counter
+		 *
+		 * @return  object  Returns a digitized object
+		 */
+
+		getDayCounter: function(includeSeconds) {
+			var digits = [
+				this.getDays(),
+				this.getHours(true),
+				this.getMinutes(true)
+			];
+
+			if(includeSeconds) {
+				digits.push(this.getSeconds(true));
+			}
+
+			return this.digitize(digits);
+		},
+
+		/**
+		 * Gets number of days
+		 *
+		 * @param   bool  Should perform a modulus? If not sent, then no.
+		 * @return  int   Retuns a floored integer
+		 */
+		 
+		getDays: function(mod) {
+			var days = this.getTimeSeconds() / 60 / 60 / 24;
+			
+			if(mod) {
+				days = days % 7;
+			}
+			
+			return Math.floor(days);
+		},
+		
+		/**
+		 * Gets an hourly breakdown
+		 *
+		 * @return  object  Returns a digitized object
+		 */
+		 
+		getHourCounter: function() {
+			var obj = this.digitize([
+				this.getHours(),
+				this.getMinutes(true),
+				this.getSeconds(true)
+			]);
+			
+			return obj;
+		},
+		
+		/**
+		 * Gets an hourly breakdown
+		 *
+		 * @return  object  Returns a digitized object
+		 */
+		 
+		getHourly: function() {
+			return this.getHourCounter();
+		},
+		
+		/**
+		 * Gets number of hours
+		 *
+		 * @param   bool  Should perform a modulus? If not sent, then no.
+		 * @return  int   Retuns a floored integer
+		 */
+		 
+		getHours: function(mod) {
+			var hours = this.getTimeSeconds() / 60 / 60;
+			
+			if(mod) {
+				hours = hours % 24;	
+			}
+			
+			return Math.floor(hours);
+		},
+		
+		/**
+		 * Gets the twenty-four hour time
+		 *
+		 * @return  object  returns a digitized object
+		 */
+		 
+		getMilitaryTime: function(date, showSeconds) {
+			if(typeof showSeconds === "undefined") {
+				showSeconds = true;
+			}
+
+			if(!date) {
+				date = this.getDateObject();
+			}
+
+			var data  = [
+				date.getHours(),
+				date.getMinutes()			
+			];
+
+			if(showSeconds === true) {
+				data.push(date.getSeconds());
+			}
+
+			return this.digitize(data);
+		},
+				
+		/**
+		 * Gets number of minutes
+		 *
+		 * @param   bool  Should perform a modulus? If not sent, then no.
+		 * @return  int   Retuns a floored integer
+		 */
+		 
+		getMinutes: function(mod) {
+			var minutes = this.getTimeSeconds() / 60;
+			
+			if(mod) {
+				minutes = minutes % 60;
+			}
+			
+			return Math.floor(minutes);
+		},
+		
+		/**
+		 * Gets a minute breakdown
+		 */
+		 
+		getMinuteCounter: function() {
+			var obj = this.digitize([
+				this.getMinutes(),
+				this.getSeconds(true)
+			]);
+
+			return obj;
+		},
+		
+		/**
+		 * Gets time count in seconds regardless of if targetting date or not.
+		 *
+		 * @return  int   Returns a floored integer
+		 */
+		 
+		getTimeSeconds: function(date) {
+			if(!date) {
+				date = new Date();
+			}
+
+			if (this.time instanceof Date) {
+				if (this.factory.countdown) {
+					return Math.max(this.time.getTime()/1000 - date.getTime()/1000,0);
+				} else {
+					return date.getTime()/1000 - this.time.getTime()/1000 ;
+				}
+			} else {
+				return this.time;
+			}
+		},
+		
+		/**
+		 * Gets the current twelve hour time
+		 *
+		 * @return  object  Returns a digitized object
+		 */
+		 
+		getTime: function(date, showSeconds) {
+			if(typeof showSeconds === "undefined") {
+				showSeconds = true;
+			}
+
+			if(!date) {
+				date = this.getDateObject();
+			}
+
+			console.log(date);
+
+			
+			var hours = date.getHours();
+			var merid = hours > 12 ? 'PM' : 'AM';
+			var data   = [
+				hours > 12 ? hours - 12 : (hours === 0 ? 12 : hours),
+				date.getMinutes()			
+			];
+
+			if(showSeconds === true) {
+				data.push(date.getSeconds());
+			}
+
+			return this.digitize(data);
+		},
+		
+		/**
+		 * Gets number of seconds
+		 *
+		 * @param   bool  Should perform a modulus? If not sent, then no.
+		 * @return  int   Retuns a ceiled integer
+		 */
+		 
+		getSeconds: function(mod) {
+			var seconds = this.getTimeSeconds();
+			
+			if(mod) {
+				if(seconds == 60) {
+					seconds = 0;
+				}
+				else {
+					seconds = seconds % 60;
+				}
+			}
+			
+			return Math.ceil(seconds);
+		},
+
+		/**
+		 * Gets number of weeks
+		 *
+		 * @param   bool  Should perform a modulus? If not sent, then no.
+		 * @return  int   Retuns a floored integer
+		 */
+		 
+		getWeeks: function(mod) {
+			var weeks = this.getTimeSeconds() / 60 / 60 / 24 / 7;
+			
+			if(mod) {
+				weeks = weeks % 52;
+			}
+			
+			return Math.floor(weeks);
+		},
+		
+		/**
+		 * Removes a specific number of leading zeros from the array.
+		 * This method prevents you from removing too many digits, even
+		 * if you try.
+		 *
+		 * @param   int    Total number of digits to remove 
+		 * @return  array  An array of digits 
+		 */
+		 
+		removeLeadingZeros: function(totalDigits, digits) {
+			var total    = 0;
+			var newArray = [];
+			
+			$.each(digits, function(i, digit) {
+				if(i < totalDigits) {
+					total += parseInt(digits[i], 10);
+				}
+				else {
+					newArray.push(digits[i]);
+				}
+			});
+			
+			if(total === 0) {
+				return newArray;
+			}
+			
+			return digits;
+		},
+
+		/**
+		 * Adds X second to the current time
+		 */
+
+		addSeconds: function(x) {
+			if(this.time instanceof Date) {
+				this.time.setSeconds(this.time.getSeconds() + x);
+			}
+			else {
+				this.time += x;
+			}
+		},
+
+		/**
+		 * Adds 1 second to the current time
+		 */
+
+		addSecond: function() {
+			this.addSeconds(1);
+		},
+
+		/**
+		 * Substracts X seconds from the current time
+		 */
+
+		subSeconds: function(x) {
+			if(this.time instanceof Date) {
+				this.time.setSeconds(this.time.getSeconds() - x);
+			}
+			else {
+				this.time -= x;
+			}
+		},
+
+		/**
+		 * Substracts 1 second from the current time
+		 */
+
+		subSecond: function() {
+			this.subSeconds(1);
+		},
+		
+		/**
+		 * Converts the object to a human readable string
+		 */
+		 
+		toString: function() {
+			return this.getTimeSeconds().toString();
+		}
+		
+		/*
+		getYears: function() {
+			return Math.floor(this.time / 60 / 60 / 24 / 7 / 52);
+		},
+		
+		getDecades: function() {
+			return Math.floor(this.getWeeks() / 10);
+		}*/
+	});
+	
+}(jQuery));
+
+/*jshint smarttabs:true */
+
+/**
+ * FlipClock.js
+ *
+ * @author     Justin Kimbrell
+ * @copyright  2013 - Objective HTML, LLC
+ * @licesnse   http://www.opensource.org/licenses/mit-license.php
+ */
+	
+(function($) {
+	
+	"use strict";
+	
+	/**
+	 * The FlipClock.Timer object managers the JS timers
+	 *
+	 * @param	object  The parent FlipClock.Factory object
+	 * @param	object  Override the default options
+	 */
+	
+	FlipClock.Timer = FlipClock.Base.extend({
+		
+		/**
+		 * Callbacks
+		 */		
+		 
+		callbacks: {
+			destroy: false,
+			create: false,
+			init: false,
+			interval: false,
+			start: false,
+			stop: false,
+			reset: false
+		},
+		
+		/**
+		 * FlipClock timer count (how many intervals have passed)
+		 */		
+		 
+		count: 0,
+		
+		/**
+		 * The parent FlipClock.Factory object
+		 */		
+		 
+		factory: false,
+		
+		/**
+		 * Timer interval (1 second by default)
+		 */		
+		 
+		interval: 1000,
+
+		/**
+		 * The rate of the animation in milliseconds (not currently in use)
+		 */		
+		 
+		animationRate: 1000,
+				
+		/**
+		 * Constructor
+		 *
+		 * @return	void
+		 */		
+		 
+		constructor: function(factory, options) {
+			this.base(options);
+			this.factory = factory;
+			this.callback(this.callbacks.init);	
+			this.callback(this.callbacks.create);
+		},
+		
+		/**
+		 * This method gets the elapsed the time as an interger
+		 *
+		 * @return	void
+		 */		
+		 
+		getElapsed: function() {
+			return this.count * this.interval;
+		},
+		
+		/**
+		 * This method gets the elapsed the time as a Date object
+		 *
+		 * @return	void
+		 */		
+		 
+		getElapsedTime: function() {
+			return new Date(this.time + this.getElapsed());
+		},
+		
+		/**
+		 * This method is resets the timer
+		 *
+		 * @param 	callback  This method resets the timer back to 0
+		 * @return	void
+		 */		
+		 
+		reset: function(callback) {
+			clearInterval(this.timer);
+			this.count = 0;
+			this._setInterval(callback);			
+			this.callback(this.callbacks.reset);
+		},
+		
+		/**
+		 * This method is starts the timer
+		 *
+		 * @param 	callback  A function that is called once the timer is destroyed
+		 * @return	void
+		 */		
+		 
+		start: function(callback) {		
+			this.factory.running = true;
+			this._createTimer(callback);
+			this.callback(this.callbacks.start);
+		},
+		
+		/**
+		 * This method is stops the timer
+		 *
+		 * @param 	callback  A function that is called once the timer is destroyed
+		 * @return	void
+		 */		
+		 
+		stop: function(callback) {
+			this.factory.running = false;
+			this._clearInterval(callback);
+			this.callback(this.callbacks.stop);
+			this.callback(callback);
+		},
+		
+		/**
+		 * Clear the timer interval
+		 *
+		 * @return	void
+		 */		
+		 
+		_clearInterval: function() {
+			clearInterval(this.timer);
+		},
+		
+		/**
+		 * Create the timer object
+		 *
+		 * @param 	callback  A function that is called once the timer is created
+		 * @return	void
+		 */		
+		 
+		_createTimer: function(callback) {
+			this._setInterval(callback);		
+		},
+		
+		/**
+		 * Destroy the timer object
+		 *
+		 * @param 	callback  A function that is called once the timer is destroyed
+		 * @return	void
+		 */		
+		 	
+		_destroyTimer: function(callback) {
+			this._clearInterval();			
+			this.timer = false;
+			this.callback(callback);
+			this.callback(this.callbacks.destroy);
+		},
+		
+		/**
+		 * This method is called each time the timer interval is ran
+		 *
+		 * @param 	callback  A function that is called once the timer is destroyed
+		 * @return	void
+		 */		
+		 
+		_interval: function(callback) {
+			this.callback(this.callbacks.interval);
+			this.callback(callback);
+			this.count++;
+		},
+		
+		/**
+		 * This sets the timer interval
+		 *
+		 * @param 	callback  A function that is called once the timer is destroyed
+		 * @return	void
+		 */		
+		 
+		_setInterval: function(callback) {
+			var t = this;
+	
+			t._interval(callback);
+
+			t.timer = setInterval(function() {		
+				t._interval(callback);
+			}, this.interval);
+		}
+			
+	});
+	
+}(jQuery));
+
+(function($) {
+	
+	/**
+	 * Twenty-Four Hour Clock Face
+	 *
+	 * This class will generate a twenty-four our clock for FlipClock.js
+	 *
+	 * @param  object  The parent FlipClock.Factory object
+	 * @param  object  An object of properties to override the default	
+	 */
+	 
+	FlipClock.TwentyFourHourClockFace = FlipClock.Face.extend({
+
+		/**
+		 * Constructor
+		 *
+		 * @param  object  The parent FlipClock.Factory object
+		 * @param  object  An object of properties to override the default	
+		 */
+		 
+		constructor: function(factory, options) {
+			this.base(factory, options);
+		},
+
+		/**
+		 * Build the clock face
+		 *
+		 * @param  object  Pass the time that should be used to display on the clock.	
+		 */
+		 
+		build: function(time) {
+			var t        = this;
+			var children = this.factory.$el.find('ul');
+
+			if(!this.factory.time.time) {
+				this.factory.original = new Date();
+
+				this.factory.time = new FlipClock.Time(this.factory, this.factory.original);
+			}
+
+			var time = time ? time : this.factory.time.getMilitaryTime(false, this.showSeconds);
+
+			if(time.length > children.length) {
+				$.each(time, function(i, digit) {
+					t.createList(digit);
+				});
+			}
+			
+			this.createDivider();
+			this.createDivider();
+
+			$(this.dividers[0]).insertBefore(this.lists[this.lists.length - 2].$el);
+			$(this.dividers[1]).insertBefore(this.lists[this.lists.length - 4].$el);
+			
+			this.base();
+		},
+		
+		/**
+		 * Flip the clock face
+		 */
+		 
+		flip: function(time, doNotAddPlayClass) {
+			this.autoIncrement();
+			
+			time = time ? time : this.factory.time.getMilitaryTime(false, this.showSeconds);
+			
+			this.base(time, doNotAddPlayClass);	
+		}
+				
+	});
+	
+}(jQuery));
+(function($) {
+		
+	/**
+	 * Counter Clock Face
+	 *
+	 * This class will generate a generice flip counter. The timer has been
+	 * disabled. clock.increment() and clock.decrement() have been added.
+	 *
+	 * @param  object  The parent FlipClock.Factory object
+	 * @param  object  An object of properties to override the default	
+	 */
+	 
+	FlipClock.CounterFace = FlipClock.Face.extend({
+		
+		/**
+		 * Tells the counter clock face if it should auto-increment
+		 */
+
+		shouldAutoIncrement: false,
+
+		/**
+		 * Constructor
+		 *
+		 * @param  object  The parent FlipClock.Factory object
+		 * @param  object  An object of properties to override the default	
+		 */
+		 
+		constructor: function(factory, options) {
+
+			if(typeof options != "object") {
+				options = {};
+			}
+
+			factory.autoStart = options.autoStart ? true : false;
+
+			if(options.autoStart) {
+				this.shouldAutoIncrement = true;
+			}
+
+			factory.increment = function() {
+				factory.countdown = false;
+				factory.setTime(factory.getTime().getTimeSeconds() + 1);
+			};
+
+			factory.decrement = function() {
+				factory.countdown = true;
+				var time = factory.getTime().getTimeSeconds();
+				if(time > 0) {
+					factory.setTime(time - 1);
+				}
+			};
+
+			factory.setValue = function(digits) {
+				factory.setTime(digits);
+			};
+
+			factory.setCounter = function(digits) {
+				factory.setTime(digits);
+			};
+
+			this.base(factory, options);
+		},
+
+		/**
+		 * Build the clock face	
+		 */
+		 
+		build: function() {
+			var t        = this;
+			var children = this.factory.$el.find('ul');
+			var time 	 = this.factory.getTime().digitize([this.factory.getTime().time]);
+
+			if(time.length > children.length) {
+				$.each(time, function(i, digit) {
+					var list = t.createList(digit);
+
+					list.select(digit);
+				});
+			
+			}
+
+			$.each(this.lists, function(i, list) {
+				list.play();
+			});
+
+			this.base();
+		},
+		
+		/**
+		 * Flip the clock face
+		 */
+		 
+		flip: function(time, doNotAddPlayClass) {			
+			if(this.shouldAutoIncrement) {
+				this.autoIncrement();
+			}
+
+			if(!time) {		
+				time = this.factory.getTime().digitize([this.factory.getTime().time]);
+			}
+
+			this.base(time, doNotAddPlayClass);
+		},
+
+		/**
+		 * Reset the clock face
+		 */
+
+		reset: function() {
+			this.factory.time = new FlipClock.Time(
+				this.factory, 
+				this.factory.original ? Math.round(this.factory.original) : 0
+			);
+
+			this.flip();
+		}
+	});
+	
+}(jQuery));
+(function($) {
+
+	/**
+	 * Daily Counter Clock Face
+	 *
+	 * This class will generate a daily counter for FlipClock.js. A
+	 * daily counter will track days, hours, minutes, and seconds. If
+	 * the number of available digits is exceeded in the count, a new
+	 * digit will be created.
+	 *
+	 * @param  object  The parent FlipClock.Factory object
+	 * @param  object  An object of properties to override the default
+	 */
+
+	FlipClock.DailyCounterFace = FlipClock.Face.extend({
+
+		showSeconds: true,
+
+		/**
+		 * Constructor
+		 *
+		 * @param  object  The parent FlipClock.Factory object
+		 * @param  object  An object of properties to override the default
+		 */
+
+		constructor: function(factory, options) {
+			this.base(factory, options);
+		},
+
+		/**
+		 * Build the clock face
+		 */
+
+		build: function(time) {
+			var t = this;
+			var children = this.factory.$el.find('ul');
+			var offset = 0;
+
+			time = time ? time : this.factory.time.getDayCounter(this.showSeconds);
+
+			if(time.length > children.length) {
+				$.each(time, function(i, digit) {
+					t.createList(digit);
+				});
+			}
+
+			if(this.showSeconds) {
+				$(this.createDivider('Seconds')).insertBefore(this.lists[this.lists.length - 2].$el);
+			}
+			else
+			{
+				offset = 2;
+			}
+
+			$(this.createDivider('Minutes')).insertBefore(this.lists[this.lists.length - 4 + offset].$el);
+			$(this.createDivider('Hours')).insertBefore(this.lists[this.lists.length - 6 + offset].$el);
+			$(this.createDivider('Days', true)).insertBefore(this.lists[0].$el);
+
+			this.base();
+		},
+
+		/**
+		 * Flip the clock face
+		 */
+
+		flip: function(time, doNotAddPlayClass) {
+			if(!time) {
+				time = this.factory.time.getDayCounter(this.showSeconds);
+			}
+
+			this.autoIncrement();
+
+			this.base(time, doNotAddPlayClass);
+		}
+
+	});
+
+}(jQuery));
+(function($) {
+			
+	/**
+	 * Hourly Counter Clock Face
+	 *
+	 * This class will generate an hourly counter for FlipClock.js. An
+	 * hour counter will track hours, minutes, and seconds. If number of
+	 * available digits is exceeded in the count, a new digit will be 
+	 * created.
+	 *
+	 * @param  object  The parent FlipClock.Factory object
+	 * @param  object  An object of properties to override the default	
+	 */
+	 
+	FlipClock.HourlyCounterFace = FlipClock.Face.extend({
+			
+		// clearExcessDigits: true,
+
+		/**
+		 * Constructor
+		 *
+		 * @param  object  The parent FlipClock.Factory object
+		 * @param  object  An object of properties to override the default	
+		 */
+		 
+		constructor: function(factory, options) {
+			this.base(factory, options);
+		},
+		
+		/**
+		 * Build the clock face
+		 */
+		
+		build: function(excludeHours, time) {
+			var t = this;
+			var children = this.factory.$el.find('ul');
+			
+			time = time ? time : this.factory.time.getHourCounter();
+			
+			if(time.length > children.length) {
+				$.each(time, function(i, digit) {
+					t.createList(digit);
+				});
+			}
+			
+			$(this.createDivider('Seconds')).insertBefore(this.lists[this.lists.length - 2].$el);
+			$(this.createDivider('Minutes')).insertBefore(this.lists[this.lists.length - 4].$el);
+			
+			if(!excludeHours) {
+				$(this.createDivider('Hours', true)).insertBefore(this.lists[0].$el);
+			}
+			
+			this.base();
+		},
+		
+		/**
+		 * Flip the clock face
+		 */
+		 
+		flip: function(time, doNotAddPlayClass) {
+			if(!time) {
+				time = this.factory.time.getHourCounter();
+			}	
+
+			this.autoIncrement();
+		
+			this.base(time, doNotAddPlayClass);
+		},
+
+		/**
+		 * Append a newly created list to the clock
+		 */
+
+		appendDigitToClock: function(obj) {
+			this.base(obj);
+
+			this.dividers[0].insertAfter(this.dividers[0].next());
+		}
+		
+	});
+	
+}(jQuery));
+(function($) {
+		
+	/**
+	 * Minute Counter Clock Face
+	 *
+	 * This class will generate a minute counter for FlipClock.js. A
+	 * minute counter will track minutes and seconds. If an hour is 
+	 * reached, the counter will reset back to 0. (4 digits max)
+	 *
+	 * @param  object  The parent FlipClock.Factory object
+	 * @param  object  An object of properties to override the default	
+	 */
+	 
+	FlipClock.MinuteCounterFace = FlipClock.HourlyCounterFace.extend({
+
+		clearExcessDigits: false,
+
+		/**
+		 * Constructor
+		 *
+		 * @param  object  The parent FlipClock.Factory object
+		 * @param  object  An object of properties to override the default	
+		 */
+		 
+		constructor: function(factory, options) {
+			this.base(factory, options);
+		},
+		
+		/**
+		 * Build the clock face	
+		 */
+		 
+		build: function() {
+			this.base(true, this.factory.time.getMinuteCounter());
+		},
+		
+		/**
+		 * Flip the clock face
+		 */
+		 
+		flip: function(time, doNotAddPlayClass) {
+			if(!time) {
+				time = this.factory.time.getMinuteCounter();
+			}
+
+			this.base(time, doNotAddPlayClass);
+		}
+
+	});
+	
+}(jQuery));
+(function($) {
+		
+	/**
+	 * Twelve Hour Clock Face
+	 *
+	 * This class will generate a twelve hour clock for FlipClock.js
+	 *
+	 * @param  object  The parent FlipClock.Factory object
+	 * @param  object  An object of properties to override the default	
+	 */
+	 
+	FlipClock.TwelveHourClockFace = FlipClock.TwentyFourHourClockFace.extend({
+		
+		/**
+		 * The meridium jQuery DOM object
+		 */
+		 
+		meridium: false,
+		
+		/**
+		 * The meridium text as string for easy access
+		 */
+		 
+		meridiumText: 'AM',
+					
+		/**
+		 * Build the clock face
+		 *
+		 * @param  object  Pass the time that should be used to display on the clock.	
+		 */
+		 
+		build: function() {
+			var t = this;
+
+			var time = this.factory.time.getTime(false, this.showSeconds);
+
+			this.base(time);			
+			this.meridiumText = this.getMeridium();			
+			this.meridium = $([
+				'<ul class="flip-clock-meridium">',
+					'<li>',
+						'<a href="#">'+this.meridiumText+'</a>',
+					'</li>',
+				'</ul>'
+			].join(''));
+						
+			this.meridium.insertAfter(this.lists[this.lists.length-1].$el);
+		},
+		
+		/**
+		 * Flip the clock face
+		 */
+		 
+		flip: function(time, doNotAddPlayClass) {			
+			if(this.meridiumText != this.getMeridium()) {
+				this.meridiumText = this.getMeridium();
+				this.meridium.find('a').html(this.meridiumText);	
+			}
+			this.base(this.factory.time.getTime(false, this.showSeconds), doNotAddPlayClass);	
+		},
+		
+		/**
+		 * Get the current meridium
+		 *
+		 * @return  string  Returns the meridium (AM|PM)
+		 */
+		 
+		getMeridium: function() {
+			return new Date().getHours() >= 12 ? 'PM' : 'AM';
+		},
+		
+		/**
+		 * Is it currently in the post-medirium?
+		 *
+		 * @return  bool  Returns true or false
+		 */
+		 
+		isPM: function() {
+			return this.getMeridium() == 'PM' ? true : false;
+		},
+
+		/**
+		 * Is it currently before the post-medirium?
+		 *
+		 * @return  bool  Returns true or false
+		 */
+		 
+		isAM: function() {
+			return this.getMeridium() == 'AM' ? true : false;
+		}
+				
+	});
+	
+}(jQuery));
+(function($) {
+
+    /**
+     * FlipClock Arabic Language Pack
+     *
+     * This class will be used to translate tokens into the Arabic language.
+     *
+     */
+
+    FlipClock.Lang.Arabic = {
+
+      'years'   : 'سنوات',
+      'months'  : 'شهور',
+      'days'    : 'أيام',
+      'hours'   : 'ساعات',
+      'minutes' : 'دقائق',
+      'seconds' : 'ثواني'
+
+    };
+
+    /* Create various aliases for convenience */
+
+    FlipClock.Lang['ar']      = FlipClock.Lang.Arabic;
+    FlipClock.Lang['ar-ar']   = FlipClock.Lang.Arabic;
+    FlipClock.Lang['arabic']  = FlipClock.Lang.Arabic;
+
+}(jQuery));
+(function($) {
+		
+	/**
+	 * FlipClock Danish Language Pack
+	 *
+	 * This class will used to translate tokens into the Danish language.
+	 *	
+	 */
+	 
+	FlipClock.Lang.Danish = {
+		
+		'years'   : 'År',
+		'months'  : 'Måneder',
+		'days'    : 'Dage',
+		'hours'   : 'Timer',
+		'minutes' : 'Minutter',
+		'seconds' : 'Sekunder'	
+
+	};
+	
+	/* Create various aliases for convenience */
+
+	FlipClock.Lang['da']     = FlipClock.Lang.Danish;
+	FlipClock.Lang['da-dk']  = FlipClock.Lang.Danish;
+	FlipClock.Lang['danish'] = FlipClock.Lang.Danish;
+
+}(jQuery));
+(function($) {
+		
+	/**
+	 * FlipClock German Language Pack
+	 *
+	 * This class will used to translate tokens into the German language.
+	 *	
+	 */
+	 
+	FlipClock.Lang.German = {
+		
+		'years'   : 'Jahre',
+		'months'  : 'Monate',
+		'days'    : 'Tage',
+		'hours'   : 'Stunden',
+		'minutes' : 'Minuten',
+		'seconds' : 'Sekunden'	
+ 
+	};
+	
+	/* Create various aliases for convenience */
+ 
+	FlipClock.Lang['de']     = FlipClock.Lang.German;
+	FlipClock.Lang['de-de']  = FlipClock.Lang.German;
+	FlipClock.Lang['german'] = FlipClock.Lang.German;
+ 
+}(jQuery));
+(function($) {
+		
+	/**
+	 * FlipClock English Language Pack
+	 *
+	 * This class will used to translate tokens into the English language.
+	 *	
+	 */
+	 
+	FlipClock.Lang.English = {
+		
+		'years'   : 'Years',
+		'months'  : 'Months',
+		'days'    : 'Days',
+		'hours'   : 'Hours',
+		'minutes' : 'Minutes',
+		'seconds' : 'Seconds'	
+
+	};
+	
+	/* Create various aliases for convenience */
+
+	FlipClock.Lang['en']      = FlipClock.Lang.English;
+	FlipClock.Lang['en-us']   = FlipClock.Lang.English;
+	FlipClock.Lang['english'] = FlipClock.Lang.English;
+
+}(jQuery));
+(function($) {
+		
+	/**
+	 * FlipClock Spanish Language Pack
+	 *
+	 * This class will used to translate tokens into the Spanish language.
+	 *	
+	 */
+	 
+	FlipClock.Lang.Spanish = {
+		
+		'years'   : 'A&#241;os',
+		'months'  : 'Meses',
+		'days'    : 'D&#205;as',
+		'hours'   : 'Horas',
+		'minutes' : 'Minutos',
+		'seconds' : 'Segundo'	
+
+	};
+	
+	/* Create various aliases for convenience */
+
+	FlipClock.Lang['es']      = FlipClock.Lang.Spanish;
+	FlipClock.Lang['es-es']   = FlipClock.Lang.Spanish;
+	FlipClock.Lang['spanish'] = FlipClock.Lang.Spanish;
+
+}(jQuery));
+(function($) {
+		
+	/**
+	 * FlipClock Finnish Language Pack
+	 *
+	 * This class will used to translate tokens into the Finnish language.
+	 *	
+	 */
+	 
+	FlipClock.Lang.Finnish = {
+		
+		'years'   : 'Vuotta',
+		'months'  : 'Kuukautta',
+		'days'    : 'Päivää',
+		'hours'   : 'Tuntia',
+		'minutes' : 'Minuuttia',
+		'seconds' : 'Sekuntia'	
+
+	};
+	
+	/* Create various aliases for convenience */
+
+	FlipClock.Lang['fi']      = FlipClock.Lang.Finnish;
+	FlipClock.Lang['fi-fi']   = FlipClock.Lang.Finnish;
+	FlipClock.Lang['finnish'] = FlipClock.Lang.Finnish;
+
+}(jQuery));
+
+(function($) {
+
+  /**
+   * FlipClock Canadian French Language Pack
+   *
+   * This class will used to translate tokens into the Canadian French language.
+   *
+   */
+
+  FlipClock.Lang.French = {
+
+    'years'   : 'Ans',
+    'months'  : 'Mois',
+    'days'    : 'Jours',
+    'hours'   : 'Heures',
+    'minutes' : 'Minutes',
+    'seconds' : 'Secondes'
+
+  };
+
+  /* Create various aliases for convenience */
+
+  FlipClock.Lang['fr']      = FlipClock.Lang.French;
+  FlipClock.Lang['fr-ca']   = FlipClock.Lang.French;
+  FlipClock.Lang['french']  = FlipClock.Lang.French;
+
+}(jQuery));
+
+(function($) {
+		
+	/**
+	 * FlipClock Italian Language Pack
+	 *
+	 * This class will used to translate tokens into the Italian language.
+	 *	
+	 */
+	 
+	FlipClock.Lang.Italian = {
+		
+		'years'   : 'Anni',
+		'months'  : 'Mesi',
+		'days'    : 'Giorni',
+		'hours'   : 'Ore',
+		'minutes' : 'Minuti',
+		'seconds' : 'Secondi'	
+
+	};
+	
+	/* Create various aliases for convenience */
+
+	FlipClock.Lang['it']      = FlipClock.Lang.Italian;
+	FlipClock.Lang['it-it']   = FlipClock.Lang.Italian;
+	FlipClock.Lang['italian'] = FlipClock.Lang.Italian;
+	
+}(jQuery));
+
+(function($) {
+
+  /**
+   * FlipClock Latvian Language Pack
+   *
+   * This class will used to translate tokens into the Latvian language.
+   *
+   */
+
+  FlipClock.Lang.Latvian = {
+
+    'years'   : 'Gadi',
+    'months'  : 'Mēneši',
+    'days'    : 'Dienas',
+    'hours'   : 'Stundas',
+    'minutes' : 'Minūtes',
+    'seconds' : 'Sekundes'
+
+  };
+
+  /* Create various aliases for convenience */
+
+  FlipClock.Lang['lv']      = FlipClock.Lang.Latvian;
+  FlipClock.Lang['lv-lv']   = FlipClock.Lang.Latvian;
+  FlipClock.Lang['latvian'] = FlipClock.Lang.Latvian;
+
+}(jQuery));
+(function($) {
+
+    /**
+     * FlipClock Dutch Language Pack
+     *
+     * This class will used to translate tokens into the Dutch language.
+     */
+
+    FlipClock.Lang.Dutch = {
+
+        'years'   : 'Jaren',
+        'months'  : 'Maanden',
+        'days'    : 'Dagen',
+        'hours'   : 'Uren',
+        'minutes' : 'Minuten',
+        'seconds' : 'Seconden'
+
+    };
+
+    /* Create various aliases for convenience */
+
+    FlipClock.Lang['nl']      = FlipClock.Lang.Dutch;
+    FlipClock.Lang['nl-be']   = FlipClock.Lang.Dutch;
+    FlipClock.Lang['dutch']   = FlipClock.Lang.Dutch;
+
+}(jQuery));
+
+(function($) {
+
+	/**
+	 * FlipClock Norwegian-Bokmål Language Pack
+	 *
+	 * This class will used to translate tokens into the Norwegian language.
+	 *	
+	 */
+
+	FlipClock.Lang.Norwegian = {
+
+		'years'   : 'År',
+		'months'  : 'Måneder',
+		'days'    : 'Dager',
+		'hours'   : 'Timer',
+		'minutes' : 'Minutter',
+		'seconds' : 'Sekunder'	
+
+	};
+
+	/* Create various aliases for convenience */
+
+	FlipClock.Lang['no']      = FlipClock.Lang.Norwegian;
+	FlipClock.Lang['nb']      = FlipClock.Lang.Norwegian;
+	FlipClock.Lang['no-nb']   = FlipClock.Lang.Norwegian;
+	FlipClock.Lang['norwegian'] = FlipClock.Lang.Norwegian;
+
+}(jQuery));
+
+(function($) {
+
+	/**
+	 * FlipClock Portuguese Language Pack
+	 *
+	 * This class will used to translate tokens into the Portuguese language.
+	 *
+	 */
+
+	FlipClock.Lang.Portuguese = {
+
+		'years'   : 'Anos',
+		'months'  : 'Meses',
+		'days'    : 'Dias',
+		'hours'   : 'Horas',
+		'minutes' : 'Minutos',
+		'seconds' : 'Segundos'
+
+	};
+
+	/* Create various aliases for convenience */
+
+	FlipClock.Lang['pt']         = FlipClock.Lang.Portuguese;
+	FlipClock.Lang['pt-br']      = FlipClock.Lang.Portuguese;
+	FlipClock.Lang['portuguese'] = FlipClock.Lang.Portuguese;
+
+}(jQuery));
+(function($) {
+
+  /**
+   * FlipClock Russian Language Pack
+   *
+   * This class will used to translate tokens into the Russian language.
+   *
+   */
+
+  FlipClock.Lang.Russian = {
+
+    'years'   : 'лет',
+    'months'  : 'месяцев',
+    'days'    : 'дней',
+    'hours'   : 'часов',
+    'minutes' : 'минут',
+    'seconds' : 'секунд'
+
+  };
+
+  /* Create various aliases for convenience */
+
+  FlipClock.Lang['ru']      = FlipClock.Lang.Russian;
+  FlipClock.Lang['ru-ru']   = FlipClock.Lang.Russian;
+  FlipClock.Lang['russian']  = FlipClock.Lang.Russian;
+
+}(jQuery));
+(function($) {
+		
+	/**
+	 * FlipClock Swedish Language Pack
+	 *
+	 * This class will used to translate tokens into the Swedish language.
+	 *	
+	 */
+	 
+	FlipClock.Lang.Swedish = {
+		
+		'years'   : 'År',
+		'months'  : 'Månader',
+		'days'    : 'Dagar',
+		'hours'   : 'Timmar',
+		'minutes' : 'Minuter',
+		'seconds' : 'Sekunder'	
+
+	};
+	
+	/* Create various aliases for convenience */
+
+	FlipClock.Lang['sv']      = FlipClock.Lang.Swedish;
+	FlipClock.Lang['sv-se']   = FlipClock.Lang.Swedish;
+	FlipClock.Lang['swedish'] = FlipClock.Lang.Swedish;
+
+}(jQuery));
+
+},{}],159:[function(require,module,exports){
 'use strict';
 
 module.exports = require('react/lib/ReactDOM');
 
-},{"react/lib/ReactDOM":193}],159:[function(require,module,exports){
+},{"react/lib/ReactDOM":194}],160:[function(require,module,exports){
 module.exports=require(2)
-},{"./ReactMount":223,"./findDOMNode":265,"C:\\Users\\rayde\\fixter\\creative_failure\\node_modules\\React\\lib\\AutoFocusUtils.js":2,"fbjs/lib/focusNode":295}],160:[function(require,module,exports){
+},{"./ReactMount":224,"./findDOMNode":266,"C:\\Users\\rayde\\fixter\\creative_failure\\node_modules\\React\\lib\\AutoFocusUtils.js":2,"fbjs/lib/focusNode":296}],161:[function(require,module,exports){
 module.exports=require(3)
-},{"./EventConstants":172,"./EventPropagators":176,"./FallbackCompositionState":177,"./SyntheticCompositionEvent":248,"./SyntheticInputEvent":252,"C:\\Users\\rayde\\fixter\\creative_failure\\node_modules\\React\\lib\\BeforeInputEventPlugin.js":3,"fbjs/lib/ExecutionEnvironment":287,"fbjs/lib/keyOf":305}],161:[function(require,module,exports){
+},{"./EventConstants":173,"./EventPropagators":177,"./FallbackCompositionState":178,"./SyntheticCompositionEvent":249,"./SyntheticInputEvent":253,"C:\\Users\\rayde\\fixter\\creative_failure\\node_modules\\React\\lib\\BeforeInputEventPlugin.js":3,"fbjs/lib/ExecutionEnvironment":288,"fbjs/lib/keyOf":306}],162:[function(require,module,exports){
 module.exports=require(4)
-},{"C:\\Users\\rayde\\fixter\\creative_failure\\node_modules\\React\\lib\\CSSProperty.js":4}],162:[function(require,module,exports){
+},{"C:\\Users\\rayde\\fixter\\creative_failure\\node_modules\\React\\lib\\CSSProperty.js":4}],163:[function(require,module,exports){
 module.exports=require(5)
-},{"./CSSProperty":161,"./ReactPerf":229,"./dangerousStyleValue":262,"C:\\Users\\rayde\\fixter\\creative_failure\\node_modules\\React\\lib\\CSSPropertyOperations.js":5,"_process":157,"fbjs/lib/ExecutionEnvironment":287,"fbjs/lib/camelizeStyleName":289,"fbjs/lib/hyphenateStyleName":300,"fbjs/lib/memoizeStringOnly":307,"fbjs/lib/warning":312}],163:[function(require,module,exports){
+},{"./CSSProperty":162,"./ReactPerf":230,"./dangerousStyleValue":263,"C:\\Users\\rayde\\fixter\\creative_failure\\node_modules\\React\\lib\\CSSPropertyOperations.js":5,"_process":157,"fbjs/lib/ExecutionEnvironment":288,"fbjs/lib/camelizeStyleName":290,"fbjs/lib/hyphenateStyleName":301,"fbjs/lib/memoizeStringOnly":308,"fbjs/lib/warning":313}],164:[function(require,module,exports){
 module.exports=require(6)
-},{"./Object.assign":180,"./PooledClass":181,"C:\\Users\\rayde\\fixter\\creative_failure\\node_modules\\React\\lib\\CallbackQueue.js":6,"_process":157,"fbjs/lib/invariant":301}],164:[function(require,module,exports){
+},{"./Object.assign":181,"./PooledClass":182,"C:\\Users\\rayde\\fixter\\creative_failure\\node_modules\\React\\lib\\CallbackQueue.js":6,"_process":157,"fbjs/lib/invariant":302}],165:[function(require,module,exports){
 module.exports=require(7)
-},{"./EventConstants":172,"./EventPluginHub":173,"./EventPropagators":176,"./ReactUpdates":241,"./SyntheticEvent":250,"./getEventTarget":271,"./isEventSupported":276,"./isTextInputElement":277,"C:\\Users\\rayde\\fixter\\creative_failure\\node_modules\\React\\lib\\ChangeEventPlugin.js":7,"fbjs/lib/ExecutionEnvironment":287,"fbjs/lib/keyOf":305}],165:[function(require,module,exports){
+},{"./EventConstants":173,"./EventPluginHub":174,"./EventPropagators":177,"./ReactUpdates":242,"./SyntheticEvent":251,"./getEventTarget":272,"./isEventSupported":277,"./isTextInputElement":278,"C:\\Users\\rayde\\fixter\\creative_failure\\node_modules\\React\\lib\\ChangeEventPlugin.js":7,"fbjs/lib/ExecutionEnvironment":288,"fbjs/lib/keyOf":306}],166:[function(require,module,exports){
 module.exports=require(8)
-},{"C:\\Users\\rayde\\fixter\\creative_failure\\node_modules\\React\\lib\\ClientReactRootIndex.js":8}],166:[function(require,module,exports){
+},{"C:\\Users\\rayde\\fixter\\creative_failure\\node_modules\\React\\lib\\ClientReactRootIndex.js":8}],167:[function(require,module,exports){
 module.exports=require(9)
-},{"./Danger":169,"./ReactMultiChildUpdateTypes":225,"./ReactPerf":229,"./setInnerHTML":281,"./setTextContent":282,"C:\\Users\\rayde\\fixter\\creative_failure\\node_modules\\React\\lib\\DOMChildrenOperations.js":9,"_process":157,"fbjs/lib/invariant":301}],167:[function(require,module,exports){
+},{"./Danger":170,"./ReactMultiChildUpdateTypes":226,"./ReactPerf":230,"./setInnerHTML":282,"./setTextContent":283,"C:\\Users\\rayde\\fixter\\creative_failure\\node_modules\\React\\lib\\DOMChildrenOperations.js":9,"_process":157,"fbjs/lib/invariant":302}],168:[function(require,module,exports){
 module.exports=require(10)
-},{"C:\\Users\\rayde\\fixter\\creative_failure\\node_modules\\React\\lib\\DOMProperty.js":10,"_process":157,"fbjs/lib/invariant":301}],168:[function(require,module,exports){
+},{"C:\\Users\\rayde\\fixter\\creative_failure\\node_modules\\React\\lib\\DOMProperty.js":10,"_process":157,"fbjs/lib/invariant":302}],169:[function(require,module,exports){
 module.exports=require(11)
-},{"./DOMProperty":167,"./ReactPerf":229,"./quoteAttributeValueForBrowser":279,"C:\\Users\\rayde\\fixter\\creative_failure\\node_modules\\React\\lib\\DOMPropertyOperations.js":11,"_process":157,"fbjs/lib/warning":312}],169:[function(require,module,exports){
+},{"./DOMProperty":168,"./ReactPerf":230,"./quoteAttributeValueForBrowser":280,"C:\\Users\\rayde\\fixter\\creative_failure\\node_modules\\React\\lib\\DOMPropertyOperations.js":11,"_process":157,"fbjs/lib/warning":313}],170:[function(require,module,exports){
 module.exports=require(12)
-},{"C:\\Users\\rayde\\fixter\\creative_failure\\node_modules\\React\\lib\\Danger.js":12,"_process":157,"fbjs/lib/ExecutionEnvironment":287,"fbjs/lib/createNodesFromMarkup":292,"fbjs/lib/emptyFunction":293,"fbjs/lib/getMarkupWrap":297,"fbjs/lib/invariant":301}],170:[function(require,module,exports){
+},{"C:\\Users\\rayde\\fixter\\creative_failure\\node_modules\\React\\lib\\Danger.js":12,"_process":157,"fbjs/lib/ExecutionEnvironment":288,"fbjs/lib/createNodesFromMarkup":293,"fbjs/lib/emptyFunction":294,"fbjs/lib/getMarkupWrap":298,"fbjs/lib/invariant":302}],171:[function(require,module,exports){
 module.exports=require(13)
-},{"C:\\Users\\rayde\\fixter\\creative_failure\\node_modules\\React\\lib\\DefaultEventPluginOrder.js":13,"fbjs/lib/keyOf":305}],171:[function(require,module,exports){
+},{"C:\\Users\\rayde\\fixter\\creative_failure\\node_modules\\React\\lib\\DefaultEventPluginOrder.js":13,"fbjs/lib/keyOf":306}],172:[function(require,module,exports){
 module.exports=require(14)
-},{"./EventConstants":172,"./EventPropagators":176,"./ReactMount":223,"./SyntheticMouseEvent":254,"C:\\Users\\rayde\\fixter\\creative_failure\\node_modules\\React\\lib\\EnterLeaveEventPlugin.js":14,"fbjs/lib/keyOf":305}],172:[function(require,module,exports){
+},{"./EventConstants":173,"./EventPropagators":177,"./ReactMount":224,"./SyntheticMouseEvent":255,"C:\\Users\\rayde\\fixter\\creative_failure\\node_modules\\React\\lib\\EnterLeaveEventPlugin.js":14,"fbjs/lib/keyOf":306}],173:[function(require,module,exports){
 module.exports=require(15)
-},{"C:\\Users\\rayde\\fixter\\creative_failure\\node_modules\\React\\lib\\EventConstants.js":15,"fbjs/lib/keyMirror":304}],173:[function(require,module,exports){
+},{"C:\\Users\\rayde\\fixter\\creative_failure\\node_modules\\React\\lib\\EventConstants.js":15,"fbjs/lib/keyMirror":305}],174:[function(require,module,exports){
 module.exports=require(16)
-},{"./EventPluginRegistry":174,"./EventPluginUtils":175,"./ReactErrorUtils":214,"./accumulateInto":260,"./forEachAccumulated":267,"C:\\Users\\rayde\\fixter\\creative_failure\\node_modules\\React\\lib\\EventPluginHub.js":16,"_process":157,"fbjs/lib/invariant":301,"fbjs/lib/warning":312}],174:[function(require,module,exports){
+},{"./EventPluginRegistry":175,"./EventPluginUtils":176,"./ReactErrorUtils":215,"./accumulateInto":261,"./forEachAccumulated":268,"C:\\Users\\rayde\\fixter\\creative_failure\\node_modules\\React\\lib\\EventPluginHub.js":16,"_process":157,"fbjs/lib/invariant":302,"fbjs/lib/warning":313}],175:[function(require,module,exports){
 module.exports=require(17)
-},{"C:\\Users\\rayde\\fixter\\creative_failure\\node_modules\\React\\lib\\EventPluginRegistry.js":17,"_process":157,"fbjs/lib/invariant":301}],175:[function(require,module,exports){
+},{"C:\\Users\\rayde\\fixter\\creative_failure\\node_modules\\React\\lib\\EventPluginRegistry.js":17,"_process":157,"fbjs/lib/invariant":302}],176:[function(require,module,exports){
 module.exports=require(18)
-},{"./EventConstants":172,"./ReactErrorUtils":214,"C:\\Users\\rayde\\fixter\\creative_failure\\node_modules\\React\\lib\\EventPluginUtils.js":18,"_process":157,"fbjs/lib/invariant":301,"fbjs/lib/warning":312}],176:[function(require,module,exports){
+},{"./EventConstants":173,"./ReactErrorUtils":215,"C:\\Users\\rayde\\fixter\\creative_failure\\node_modules\\React\\lib\\EventPluginUtils.js":18,"_process":157,"fbjs/lib/invariant":302,"fbjs/lib/warning":313}],177:[function(require,module,exports){
 module.exports=require(19)
-},{"./EventConstants":172,"./EventPluginHub":173,"./accumulateInto":260,"./forEachAccumulated":267,"C:\\Users\\rayde\\fixter\\creative_failure\\node_modules\\React\\lib\\EventPropagators.js":19,"_process":157,"fbjs/lib/warning":312}],177:[function(require,module,exports){
+},{"./EventConstants":173,"./EventPluginHub":174,"./accumulateInto":261,"./forEachAccumulated":268,"C:\\Users\\rayde\\fixter\\creative_failure\\node_modules\\React\\lib\\EventPropagators.js":19,"_process":157,"fbjs/lib/warning":313}],178:[function(require,module,exports){
 module.exports=require(20)
-},{"./Object.assign":180,"./PooledClass":181,"./getTextContentAccessor":274,"C:\\Users\\rayde\\fixter\\creative_failure\\node_modules\\React\\lib\\FallbackCompositionState.js":20}],178:[function(require,module,exports){
+},{"./Object.assign":181,"./PooledClass":182,"./getTextContentAccessor":275,"C:\\Users\\rayde\\fixter\\creative_failure\\node_modules\\React\\lib\\FallbackCompositionState.js":20}],179:[function(require,module,exports){
 module.exports=require(21)
-},{"./DOMProperty":167,"C:\\Users\\rayde\\fixter\\creative_failure\\node_modules\\React\\lib\\HTMLDOMPropertyConfig.js":21,"fbjs/lib/ExecutionEnvironment":287}],179:[function(require,module,exports){
+},{"./DOMProperty":168,"C:\\Users\\rayde\\fixter\\creative_failure\\node_modules\\React\\lib\\HTMLDOMPropertyConfig.js":21,"fbjs/lib/ExecutionEnvironment":288}],180:[function(require,module,exports){
 module.exports=require(22)
-},{"./ReactPropTypeLocations":231,"./ReactPropTypes":232,"C:\\Users\\rayde\\fixter\\creative_failure\\node_modules\\React\\lib\\LinkedValueUtils.js":22,"_process":157,"fbjs/lib/invariant":301,"fbjs/lib/warning":312}],180:[function(require,module,exports){
+},{"./ReactPropTypeLocations":232,"./ReactPropTypes":233,"C:\\Users\\rayde\\fixter\\creative_failure\\node_modules\\React\\lib\\LinkedValueUtils.js":22,"_process":157,"fbjs/lib/invariant":302,"fbjs/lib/warning":313}],181:[function(require,module,exports){
 module.exports=require(23)
-},{"C:\\Users\\rayde\\fixter\\creative_failure\\node_modules\\React\\lib\\Object.assign.js":23}],181:[function(require,module,exports){
+},{"C:\\Users\\rayde\\fixter\\creative_failure\\node_modules\\React\\lib\\Object.assign.js":23}],182:[function(require,module,exports){
 module.exports=require(24)
-},{"C:\\Users\\rayde\\fixter\\creative_failure\\node_modules\\React\\lib\\PooledClass.js":24,"_process":157,"fbjs/lib/invariant":301}],182:[function(require,module,exports){
+},{"C:\\Users\\rayde\\fixter\\creative_failure\\node_modules\\React\\lib\\PooledClass.js":24,"_process":157,"fbjs/lib/invariant":302}],183:[function(require,module,exports){
 module.exports=require(25)
-},{"./Object.assign":180,"./ReactDOM":193,"./ReactDOMServer":203,"./ReactIsomorphic":221,"./deprecated":263,"C:\\Users\\rayde\\fixter\\creative_failure\\node_modules\\React\\lib\\React.js":25}],183:[function(require,module,exports){
+},{"./Object.assign":181,"./ReactDOM":194,"./ReactDOMServer":204,"./ReactIsomorphic":222,"./deprecated":264,"C:\\Users\\rayde\\fixter\\creative_failure\\node_modules\\React\\lib\\React.js":25}],184:[function(require,module,exports){
 module.exports=require(26)
-},{"./ReactInstanceMap":220,"./findDOMNode":265,"C:\\Users\\rayde\\fixter\\creative_failure\\node_modules\\React\\lib\\ReactBrowserComponentMixin.js":26,"_process":157,"fbjs/lib/warning":312}],184:[function(require,module,exports){
+},{"./ReactInstanceMap":221,"./findDOMNode":266,"C:\\Users\\rayde\\fixter\\creative_failure\\node_modules\\React\\lib\\ReactBrowserComponentMixin.js":26,"_process":157,"fbjs/lib/warning":313}],185:[function(require,module,exports){
 module.exports=require(27)
-},{"./EventConstants":172,"./EventPluginHub":173,"./EventPluginRegistry":174,"./Object.assign":180,"./ReactEventEmitterMixin":215,"./ReactPerf":229,"./ViewportMetrics":259,"./isEventSupported":276,"C:\\Users\\rayde\\fixter\\creative_failure\\node_modules\\React\\lib\\ReactBrowserEventEmitter.js":27}],185:[function(require,module,exports){
+},{"./EventConstants":173,"./EventPluginHub":174,"./EventPluginRegistry":175,"./Object.assign":181,"./ReactEventEmitterMixin":216,"./ReactPerf":230,"./ViewportMetrics":260,"./isEventSupported":277,"C:\\Users\\rayde\\fixter\\creative_failure\\node_modules\\React\\lib\\ReactBrowserEventEmitter.js":27}],186:[function(require,module,exports){
 module.exports=require(28)
-},{"./ReactReconciler":234,"./instantiateReactComponent":275,"./shouldUpdateReactComponent":283,"./traverseAllChildren":284,"C:\\Users\\rayde\\fixter\\creative_failure\\node_modules\\React\\lib\\ReactChildReconciler.js":28,"_process":157,"fbjs/lib/warning":312}],186:[function(require,module,exports){
+},{"./ReactReconciler":235,"./instantiateReactComponent":276,"./shouldUpdateReactComponent":284,"./traverseAllChildren":285,"C:\\Users\\rayde\\fixter\\creative_failure\\node_modules\\React\\lib\\ReactChildReconciler.js":28,"_process":157,"fbjs/lib/warning":313}],187:[function(require,module,exports){
 module.exports=require(29)
-},{"./PooledClass":181,"./ReactElement":210,"./traverseAllChildren":284,"C:\\Users\\rayde\\fixter\\creative_failure\\node_modules\\React\\lib\\ReactChildren.js":29,"fbjs/lib/emptyFunction":293}],187:[function(require,module,exports){
+},{"./PooledClass":182,"./ReactElement":211,"./traverseAllChildren":285,"C:\\Users\\rayde\\fixter\\creative_failure\\node_modules\\React\\lib\\ReactChildren.js":29,"fbjs/lib/emptyFunction":294}],188:[function(require,module,exports){
 module.exports=require(30)
-},{"./Object.assign":180,"./ReactComponent":188,"./ReactElement":210,"./ReactNoopUpdateQueue":227,"./ReactPropTypeLocationNames":230,"./ReactPropTypeLocations":231,"C:\\Users\\rayde\\fixter\\creative_failure\\node_modules\\React\\lib\\ReactClass.js":30,"_process":157,"fbjs/lib/emptyObject":294,"fbjs/lib/invariant":301,"fbjs/lib/keyMirror":304,"fbjs/lib/keyOf":305,"fbjs/lib/warning":312}],188:[function(require,module,exports){
+},{"./Object.assign":181,"./ReactComponent":189,"./ReactElement":211,"./ReactNoopUpdateQueue":228,"./ReactPropTypeLocationNames":231,"./ReactPropTypeLocations":232,"C:\\Users\\rayde\\fixter\\creative_failure\\node_modules\\React\\lib\\ReactClass.js":30,"_process":157,"fbjs/lib/emptyObject":295,"fbjs/lib/invariant":302,"fbjs/lib/keyMirror":305,"fbjs/lib/keyOf":306,"fbjs/lib/warning":313}],189:[function(require,module,exports){
 module.exports=require(31)
-},{"./ReactNoopUpdateQueue":227,"C:\\Users\\rayde\\fixter\\creative_failure\\node_modules\\React\\lib\\ReactComponent.js":31,"_process":157,"fbjs/lib/emptyObject":294,"fbjs/lib/invariant":301,"fbjs/lib/warning":312}],189:[function(require,module,exports){
+},{"./ReactNoopUpdateQueue":228,"C:\\Users\\rayde\\fixter\\creative_failure\\node_modules\\React\\lib\\ReactComponent.js":31,"_process":157,"fbjs/lib/emptyObject":295,"fbjs/lib/invariant":302,"fbjs/lib/warning":313}],190:[function(require,module,exports){
 module.exports=require(32)
-},{"./ReactDOMIDOperations":198,"./ReactMount":223,"C:\\Users\\rayde\\fixter\\creative_failure\\node_modules\\React\\lib\\ReactComponentBrowserEnvironment.js":32}],190:[function(require,module,exports){
+},{"./ReactDOMIDOperations":199,"./ReactMount":224,"C:\\Users\\rayde\\fixter\\creative_failure\\node_modules\\React\\lib\\ReactComponentBrowserEnvironment.js":32}],191:[function(require,module,exports){
 module.exports=require(33)
-},{"C:\\Users\\rayde\\fixter\\creative_failure\\node_modules\\React\\lib\\ReactComponentEnvironment.js":33,"_process":157,"fbjs/lib/invariant":301}],191:[function(require,module,exports){
+},{"C:\\Users\\rayde\\fixter\\creative_failure\\node_modules\\React\\lib\\ReactComponentEnvironment.js":33,"_process":157,"fbjs/lib/invariant":302}],192:[function(require,module,exports){
 module.exports=require(34)
-},{"./Object.assign":180,"./ReactComponentEnvironment":190,"./ReactCurrentOwner":192,"./ReactElement":210,"./ReactInstanceMap":220,"./ReactPerf":229,"./ReactPropTypeLocationNames":230,"./ReactPropTypeLocations":231,"./ReactReconciler":234,"./ReactUpdateQueue":240,"./shouldUpdateReactComponent":283,"C:\\Users\\rayde\\fixter\\creative_failure\\node_modules\\React\\lib\\ReactCompositeComponent.js":34,"_process":157,"fbjs/lib/emptyObject":294,"fbjs/lib/invariant":301,"fbjs/lib/warning":312}],192:[function(require,module,exports){
+},{"./Object.assign":181,"./ReactComponentEnvironment":191,"./ReactCurrentOwner":193,"./ReactElement":211,"./ReactInstanceMap":221,"./ReactPerf":230,"./ReactPropTypeLocationNames":231,"./ReactPropTypeLocations":232,"./ReactReconciler":235,"./ReactUpdateQueue":241,"./shouldUpdateReactComponent":284,"C:\\Users\\rayde\\fixter\\creative_failure\\node_modules\\React\\lib\\ReactCompositeComponent.js":34,"_process":157,"fbjs/lib/emptyObject":295,"fbjs/lib/invariant":302,"fbjs/lib/warning":313}],193:[function(require,module,exports){
 module.exports=require(35)
-},{"C:\\Users\\rayde\\fixter\\creative_failure\\node_modules\\React\\lib\\ReactCurrentOwner.js":35}],193:[function(require,module,exports){
+},{"C:\\Users\\rayde\\fixter\\creative_failure\\node_modules\\React\\lib\\ReactCurrentOwner.js":35}],194:[function(require,module,exports){
 module.exports=require(36)
-},{"./ReactCurrentOwner":192,"./ReactDOMTextComponent":204,"./ReactDefaultInjection":207,"./ReactInstanceHandles":219,"./ReactMount":223,"./ReactPerf":229,"./ReactReconciler":234,"./ReactUpdates":241,"./ReactVersion":242,"./findDOMNode":265,"./renderSubtreeIntoContainer":280,"C:\\Users\\rayde\\fixter\\creative_failure\\node_modules\\React\\lib\\ReactDOM.js":36,"_process":157,"fbjs/lib/ExecutionEnvironment":287,"fbjs/lib/warning":312}],194:[function(require,module,exports){
+},{"./ReactCurrentOwner":193,"./ReactDOMTextComponent":205,"./ReactDefaultInjection":208,"./ReactInstanceHandles":220,"./ReactMount":224,"./ReactPerf":230,"./ReactReconciler":235,"./ReactUpdates":242,"./ReactVersion":243,"./findDOMNode":266,"./renderSubtreeIntoContainer":281,"C:\\Users\\rayde\\fixter\\creative_failure\\node_modules\\React\\lib\\ReactDOM.js":36,"_process":157,"fbjs/lib/ExecutionEnvironment":288,"fbjs/lib/warning":313}],195:[function(require,module,exports){
 module.exports=require(37)
-},{"C:\\Users\\rayde\\fixter\\creative_failure\\node_modules\\React\\lib\\ReactDOMButton.js":37}],195:[function(require,module,exports){
+},{"C:\\Users\\rayde\\fixter\\creative_failure\\node_modules\\React\\lib\\ReactDOMButton.js":37}],196:[function(require,module,exports){
 module.exports=require(38)
-},{"./AutoFocusUtils":159,"./CSSPropertyOperations":162,"./DOMProperty":167,"./DOMPropertyOperations":168,"./EventConstants":172,"./Object.assign":180,"./ReactBrowserEventEmitter":184,"./ReactComponentBrowserEnvironment":189,"./ReactDOMButton":194,"./ReactDOMInput":199,"./ReactDOMOption":200,"./ReactDOMSelect":201,"./ReactDOMTextarea":205,"./ReactMount":223,"./ReactMultiChild":224,"./ReactPerf":229,"./ReactUpdateQueue":240,"./escapeTextContentForBrowser":264,"./isEventSupported":276,"./setInnerHTML":281,"./setTextContent":282,"./validateDOMNesting":285,"C:\\Users\\rayde\\fixter\\creative_failure\\node_modules\\React\\lib\\ReactDOMComponent.js":38,"_process":157,"fbjs/lib/invariant":301,"fbjs/lib/keyOf":305,"fbjs/lib/shallowEqual":310,"fbjs/lib/warning":312}],196:[function(require,module,exports){
+},{"./AutoFocusUtils":160,"./CSSPropertyOperations":163,"./DOMProperty":168,"./DOMPropertyOperations":169,"./EventConstants":173,"./Object.assign":181,"./ReactBrowserEventEmitter":185,"./ReactComponentBrowserEnvironment":190,"./ReactDOMButton":195,"./ReactDOMInput":200,"./ReactDOMOption":201,"./ReactDOMSelect":202,"./ReactDOMTextarea":206,"./ReactMount":224,"./ReactMultiChild":225,"./ReactPerf":230,"./ReactUpdateQueue":241,"./escapeTextContentForBrowser":265,"./isEventSupported":277,"./setInnerHTML":282,"./setTextContent":283,"./validateDOMNesting":286,"C:\\Users\\rayde\\fixter\\creative_failure\\node_modules\\React\\lib\\ReactDOMComponent.js":38,"_process":157,"fbjs/lib/invariant":302,"fbjs/lib/keyOf":306,"fbjs/lib/shallowEqual":311,"fbjs/lib/warning":313}],197:[function(require,module,exports){
 module.exports=require(39)
-},{"./ReactElement":210,"./ReactElementValidator":211,"C:\\Users\\rayde\\fixter\\creative_failure\\node_modules\\React\\lib\\ReactDOMFactories.js":39,"_process":157,"fbjs/lib/mapObject":306}],197:[function(require,module,exports){
+},{"./ReactElement":211,"./ReactElementValidator":212,"C:\\Users\\rayde\\fixter\\creative_failure\\node_modules\\React\\lib\\ReactDOMFactories.js":39,"_process":157,"fbjs/lib/mapObject":307}],198:[function(require,module,exports){
 module.exports=require(40)
-},{"C:\\Users\\rayde\\fixter\\creative_failure\\node_modules\\React\\lib\\ReactDOMFeatureFlags.js":40}],198:[function(require,module,exports){
+},{"C:\\Users\\rayde\\fixter\\creative_failure\\node_modules\\React\\lib\\ReactDOMFeatureFlags.js":40}],199:[function(require,module,exports){
 module.exports=require(41)
-},{"./DOMChildrenOperations":166,"./DOMPropertyOperations":168,"./ReactMount":223,"./ReactPerf":229,"C:\\Users\\rayde\\fixter\\creative_failure\\node_modules\\React\\lib\\ReactDOMIDOperations.js":41,"_process":157,"fbjs/lib/invariant":301}],199:[function(require,module,exports){
+},{"./DOMChildrenOperations":167,"./DOMPropertyOperations":169,"./ReactMount":224,"./ReactPerf":230,"C:\\Users\\rayde\\fixter\\creative_failure\\node_modules\\React\\lib\\ReactDOMIDOperations.js":41,"_process":157,"fbjs/lib/invariant":302}],200:[function(require,module,exports){
 module.exports=require(42)
-},{"./LinkedValueUtils":179,"./Object.assign":180,"./ReactDOMIDOperations":198,"./ReactMount":223,"./ReactUpdates":241,"C:\\Users\\rayde\\fixter\\creative_failure\\node_modules\\React\\lib\\ReactDOMInput.js":42,"_process":157,"fbjs/lib/invariant":301}],200:[function(require,module,exports){
+},{"./LinkedValueUtils":180,"./Object.assign":181,"./ReactDOMIDOperations":199,"./ReactMount":224,"./ReactUpdates":242,"C:\\Users\\rayde\\fixter\\creative_failure\\node_modules\\React\\lib\\ReactDOMInput.js":42,"_process":157,"fbjs/lib/invariant":302}],201:[function(require,module,exports){
 module.exports=require(43)
-},{"./Object.assign":180,"./ReactChildren":186,"./ReactDOMSelect":201,"C:\\Users\\rayde\\fixter\\creative_failure\\node_modules\\React\\lib\\ReactDOMOption.js":43,"_process":157,"fbjs/lib/warning":312}],201:[function(require,module,exports){
+},{"./Object.assign":181,"./ReactChildren":187,"./ReactDOMSelect":202,"C:\\Users\\rayde\\fixter\\creative_failure\\node_modules\\React\\lib\\ReactDOMOption.js":43,"_process":157,"fbjs/lib/warning":313}],202:[function(require,module,exports){
 module.exports=require(44)
-},{"./LinkedValueUtils":179,"./Object.assign":180,"./ReactMount":223,"./ReactUpdates":241,"C:\\Users\\rayde\\fixter\\creative_failure\\node_modules\\React\\lib\\ReactDOMSelect.js":44,"_process":157,"fbjs/lib/warning":312}],202:[function(require,module,exports){
+},{"./LinkedValueUtils":180,"./Object.assign":181,"./ReactMount":224,"./ReactUpdates":242,"C:\\Users\\rayde\\fixter\\creative_failure\\node_modules\\React\\lib\\ReactDOMSelect.js":44,"_process":157,"fbjs/lib/warning":313}],203:[function(require,module,exports){
 module.exports=require(45)
-},{"./getNodeForCharacterOffset":273,"./getTextContentAccessor":274,"C:\\Users\\rayde\\fixter\\creative_failure\\node_modules\\React\\lib\\ReactDOMSelection.js":45,"fbjs/lib/ExecutionEnvironment":287}],203:[function(require,module,exports){
+},{"./getNodeForCharacterOffset":274,"./getTextContentAccessor":275,"C:\\Users\\rayde\\fixter\\creative_failure\\node_modules\\React\\lib\\ReactDOMSelection.js":45,"fbjs/lib/ExecutionEnvironment":288}],204:[function(require,module,exports){
 module.exports=require(46)
-},{"./ReactDefaultInjection":207,"./ReactServerRendering":238,"./ReactVersion":242,"C:\\Users\\rayde\\fixter\\creative_failure\\node_modules\\React\\lib\\ReactDOMServer.js":46}],204:[function(require,module,exports){
+},{"./ReactDefaultInjection":208,"./ReactServerRendering":239,"./ReactVersion":243,"C:\\Users\\rayde\\fixter\\creative_failure\\node_modules\\React\\lib\\ReactDOMServer.js":46}],205:[function(require,module,exports){
 module.exports=require(47)
-},{"./DOMChildrenOperations":166,"./DOMPropertyOperations":168,"./Object.assign":180,"./ReactComponentBrowserEnvironment":189,"./ReactMount":223,"./escapeTextContentForBrowser":264,"./setTextContent":282,"./validateDOMNesting":285,"C:\\Users\\rayde\\fixter\\creative_failure\\node_modules\\React\\lib\\ReactDOMTextComponent.js":47,"_process":157}],205:[function(require,module,exports){
+},{"./DOMChildrenOperations":167,"./DOMPropertyOperations":169,"./Object.assign":181,"./ReactComponentBrowserEnvironment":190,"./ReactMount":224,"./escapeTextContentForBrowser":265,"./setTextContent":283,"./validateDOMNesting":286,"C:\\Users\\rayde\\fixter\\creative_failure\\node_modules\\React\\lib\\ReactDOMTextComponent.js":47,"_process":157}],206:[function(require,module,exports){
 module.exports=require(48)
-},{"./LinkedValueUtils":179,"./Object.assign":180,"./ReactDOMIDOperations":198,"./ReactUpdates":241,"C:\\Users\\rayde\\fixter\\creative_failure\\node_modules\\React\\lib\\ReactDOMTextarea.js":48,"_process":157,"fbjs/lib/invariant":301,"fbjs/lib/warning":312}],206:[function(require,module,exports){
+},{"./LinkedValueUtils":180,"./Object.assign":181,"./ReactDOMIDOperations":199,"./ReactUpdates":242,"C:\\Users\\rayde\\fixter\\creative_failure\\node_modules\\React\\lib\\ReactDOMTextarea.js":48,"_process":157,"fbjs/lib/invariant":302,"fbjs/lib/warning":313}],207:[function(require,module,exports){
 module.exports=require(49)
-},{"./Object.assign":180,"./ReactUpdates":241,"./Transaction":258,"C:\\Users\\rayde\\fixter\\creative_failure\\node_modules\\React\\lib\\ReactDefaultBatchingStrategy.js":49,"fbjs/lib/emptyFunction":293}],207:[function(require,module,exports){
+},{"./Object.assign":181,"./ReactUpdates":242,"./Transaction":259,"C:\\Users\\rayde\\fixter\\creative_failure\\node_modules\\React\\lib\\ReactDefaultBatchingStrategy.js":49,"fbjs/lib/emptyFunction":294}],208:[function(require,module,exports){
 module.exports=require(50)
-},{"./BeforeInputEventPlugin":160,"./ChangeEventPlugin":164,"./ClientReactRootIndex":165,"./DefaultEventPluginOrder":170,"./EnterLeaveEventPlugin":171,"./HTMLDOMPropertyConfig":178,"./ReactBrowserComponentMixin":183,"./ReactComponentBrowserEnvironment":189,"./ReactDOMComponent":195,"./ReactDOMTextComponent":204,"./ReactDefaultBatchingStrategy":206,"./ReactDefaultPerf":208,"./ReactEventListener":216,"./ReactInjection":217,"./ReactInstanceHandles":219,"./ReactMount":223,"./ReactReconcileTransaction":233,"./SVGDOMPropertyConfig":243,"./SelectEventPlugin":244,"./ServerReactRootIndex":245,"./SimpleEventPlugin":246,"C:\\Users\\rayde\\fixter\\creative_failure\\node_modules\\React\\lib\\ReactDefaultInjection.js":50,"_process":157,"fbjs/lib/ExecutionEnvironment":287}],208:[function(require,module,exports){
+},{"./BeforeInputEventPlugin":161,"./ChangeEventPlugin":165,"./ClientReactRootIndex":166,"./DefaultEventPluginOrder":171,"./EnterLeaveEventPlugin":172,"./HTMLDOMPropertyConfig":179,"./ReactBrowserComponentMixin":184,"./ReactComponentBrowserEnvironment":190,"./ReactDOMComponent":196,"./ReactDOMTextComponent":205,"./ReactDefaultBatchingStrategy":207,"./ReactDefaultPerf":209,"./ReactEventListener":217,"./ReactInjection":218,"./ReactInstanceHandles":220,"./ReactMount":224,"./ReactReconcileTransaction":234,"./SVGDOMPropertyConfig":244,"./SelectEventPlugin":245,"./ServerReactRootIndex":246,"./SimpleEventPlugin":247,"C:\\Users\\rayde\\fixter\\creative_failure\\node_modules\\React\\lib\\ReactDefaultInjection.js":50,"_process":157,"fbjs/lib/ExecutionEnvironment":288}],209:[function(require,module,exports){
 module.exports=require(51)
-},{"./DOMProperty":167,"./ReactDefaultPerfAnalysis":209,"./ReactMount":223,"./ReactPerf":229,"C:\\Users\\rayde\\fixter\\creative_failure\\node_modules\\React\\lib\\ReactDefaultPerf.js":51,"fbjs/lib/performanceNow":309}],209:[function(require,module,exports){
+},{"./DOMProperty":168,"./ReactDefaultPerfAnalysis":210,"./ReactMount":224,"./ReactPerf":230,"C:\\Users\\rayde\\fixter\\creative_failure\\node_modules\\React\\lib\\ReactDefaultPerf.js":51,"fbjs/lib/performanceNow":310}],210:[function(require,module,exports){
 module.exports=require(52)
-},{"./Object.assign":180,"C:\\Users\\rayde\\fixter\\creative_failure\\node_modules\\React\\lib\\ReactDefaultPerfAnalysis.js":52}],210:[function(require,module,exports){
+},{"./Object.assign":181,"C:\\Users\\rayde\\fixter\\creative_failure\\node_modules\\React\\lib\\ReactDefaultPerfAnalysis.js":52}],211:[function(require,module,exports){
 module.exports=require(53)
-},{"./Object.assign":180,"./ReactCurrentOwner":192,"C:\\Users\\rayde\\fixter\\creative_failure\\node_modules\\React\\lib\\ReactElement.js":53,"_process":157}],211:[function(require,module,exports){
+},{"./Object.assign":181,"./ReactCurrentOwner":193,"C:\\Users\\rayde\\fixter\\creative_failure\\node_modules\\React\\lib\\ReactElement.js":53,"_process":157}],212:[function(require,module,exports){
 module.exports=require(54)
-},{"./ReactCurrentOwner":192,"./ReactElement":210,"./ReactPropTypeLocationNames":230,"./ReactPropTypeLocations":231,"./getIteratorFn":272,"C:\\Users\\rayde\\fixter\\creative_failure\\node_modules\\React\\lib\\ReactElementValidator.js":54,"_process":157,"fbjs/lib/invariant":301,"fbjs/lib/warning":312}],212:[function(require,module,exports){
+},{"./ReactCurrentOwner":193,"./ReactElement":211,"./ReactPropTypeLocationNames":231,"./ReactPropTypeLocations":232,"./getIteratorFn":273,"C:\\Users\\rayde\\fixter\\creative_failure\\node_modules\\React\\lib\\ReactElementValidator.js":54,"_process":157,"fbjs/lib/invariant":302,"fbjs/lib/warning":313}],213:[function(require,module,exports){
 module.exports=require(55)
-},{"./Object.assign":180,"./ReactElement":210,"./ReactEmptyComponentRegistry":213,"./ReactReconciler":234,"C:\\Users\\rayde\\fixter\\creative_failure\\node_modules\\React\\lib\\ReactEmptyComponent.js":55}],213:[function(require,module,exports){
+},{"./Object.assign":181,"./ReactElement":211,"./ReactEmptyComponentRegistry":214,"./ReactReconciler":235,"C:\\Users\\rayde\\fixter\\creative_failure\\node_modules\\React\\lib\\ReactEmptyComponent.js":55}],214:[function(require,module,exports){
 module.exports=require(56)
-},{"C:\\Users\\rayde\\fixter\\creative_failure\\node_modules\\React\\lib\\ReactEmptyComponentRegistry.js":56}],214:[function(require,module,exports){
+},{"C:\\Users\\rayde\\fixter\\creative_failure\\node_modules\\React\\lib\\ReactEmptyComponentRegistry.js":56}],215:[function(require,module,exports){
 module.exports=require(57)
-},{"C:\\Users\\rayde\\fixter\\creative_failure\\node_modules\\React\\lib\\ReactErrorUtils.js":57,"_process":157}],215:[function(require,module,exports){
+},{"C:\\Users\\rayde\\fixter\\creative_failure\\node_modules\\React\\lib\\ReactErrorUtils.js":57,"_process":157}],216:[function(require,module,exports){
 module.exports=require(58)
-},{"./EventPluginHub":173,"C:\\Users\\rayde\\fixter\\creative_failure\\node_modules\\React\\lib\\ReactEventEmitterMixin.js":58}],216:[function(require,module,exports){
+},{"./EventPluginHub":174,"C:\\Users\\rayde\\fixter\\creative_failure\\node_modules\\React\\lib\\ReactEventEmitterMixin.js":58}],217:[function(require,module,exports){
 module.exports=require(59)
-},{"./Object.assign":180,"./PooledClass":181,"./ReactInstanceHandles":219,"./ReactMount":223,"./ReactUpdates":241,"./getEventTarget":271,"C:\\Users\\rayde\\fixter\\creative_failure\\node_modules\\React\\lib\\ReactEventListener.js":59,"fbjs/lib/EventListener":286,"fbjs/lib/ExecutionEnvironment":287,"fbjs/lib/getUnboundedScrollPosition":298}],217:[function(require,module,exports){
+},{"./Object.assign":181,"./PooledClass":182,"./ReactInstanceHandles":220,"./ReactMount":224,"./ReactUpdates":242,"./getEventTarget":272,"C:\\Users\\rayde\\fixter\\creative_failure\\node_modules\\React\\lib\\ReactEventListener.js":59,"fbjs/lib/EventListener":287,"fbjs/lib/ExecutionEnvironment":288,"fbjs/lib/getUnboundedScrollPosition":299}],218:[function(require,module,exports){
 module.exports=require(60)
-},{"./DOMProperty":167,"./EventPluginHub":173,"./ReactBrowserEventEmitter":184,"./ReactClass":187,"./ReactComponentEnvironment":190,"./ReactEmptyComponent":212,"./ReactNativeComponent":226,"./ReactPerf":229,"./ReactRootIndex":236,"./ReactUpdates":241,"C:\\Users\\rayde\\fixter\\creative_failure\\node_modules\\React\\lib\\ReactInjection.js":60}],218:[function(require,module,exports){
+},{"./DOMProperty":168,"./EventPluginHub":174,"./ReactBrowserEventEmitter":185,"./ReactClass":188,"./ReactComponentEnvironment":191,"./ReactEmptyComponent":213,"./ReactNativeComponent":227,"./ReactPerf":230,"./ReactRootIndex":237,"./ReactUpdates":242,"C:\\Users\\rayde\\fixter\\creative_failure\\node_modules\\React\\lib\\ReactInjection.js":60}],219:[function(require,module,exports){
 module.exports=require(61)
-},{"./ReactDOMSelection":202,"C:\\Users\\rayde\\fixter\\creative_failure\\node_modules\\React\\lib\\ReactInputSelection.js":61,"fbjs/lib/containsNode":290,"fbjs/lib/focusNode":295,"fbjs/lib/getActiveElement":296}],219:[function(require,module,exports){
+},{"./ReactDOMSelection":203,"C:\\Users\\rayde\\fixter\\creative_failure\\node_modules\\React\\lib\\ReactInputSelection.js":61,"fbjs/lib/containsNode":291,"fbjs/lib/focusNode":296,"fbjs/lib/getActiveElement":297}],220:[function(require,module,exports){
 module.exports=require(62)
-},{"./ReactRootIndex":236,"C:\\Users\\rayde\\fixter\\creative_failure\\node_modules\\React\\lib\\ReactInstanceHandles.js":62,"_process":157,"fbjs/lib/invariant":301}],220:[function(require,module,exports){
+},{"./ReactRootIndex":237,"C:\\Users\\rayde\\fixter\\creative_failure\\node_modules\\React\\lib\\ReactInstanceHandles.js":62,"_process":157,"fbjs/lib/invariant":302}],221:[function(require,module,exports){
 module.exports=require(63)
-},{"C:\\Users\\rayde\\fixter\\creative_failure\\node_modules\\React\\lib\\ReactInstanceMap.js":63}],221:[function(require,module,exports){
+},{"C:\\Users\\rayde\\fixter\\creative_failure\\node_modules\\React\\lib\\ReactInstanceMap.js":63}],222:[function(require,module,exports){
 module.exports=require(64)
-},{"./Object.assign":180,"./ReactChildren":186,"./ReactClass":187,"./ReactComponent":188,"./ReactDOMFactories":196,"./ReactElement":210,"./ReactElementValidator":211,"./ReactPropTypes":232,"./ReactVersion":242,"./onlyChild":278,"C:\\Users\\rayde\\fixter\\creative_failure\\node_modules\\React\\lib\\ReactIsomorphic.js":64,"_process":157}],222:[function(require,module,exports){
+},{"./Object.assign":181,"./ReactChildren":187,"./ReactClass":188,"./ReactComponent":189,"./ReactDOMFactories":197,"./ReactElement":211,"./ReactElementValidator":212,"./ReactPropTypes":233,"./ReactVersion":243,"./onlyChild":279,"C:\\Users\\rayde\\fixter\\creative_failure\\node_modules\\React\\lib\\ReactIsomorphic.js":64,"_process":157}],223:[function(require,module,exports){
 module.exports=require(65)
-},{"./adler32":261,"C:\\Users\\rayde\\fixter\\creative_failure\\node_modules\\React\\lib\\ReactMarkupChecksum.js":65}],223:[function(require,module,exports){
+},{"./adler32":262,"C:\\Users\\rayde\\fixter\\creative_failure\\node_modules\\React\\lib\\ReactMarkupChecksum.js":65}],224:[function(require,module,exports){
 module.exports=require(66)
-},{"./DOMProperty":167,"./Object.assign":180,"./ReactBrowserEventEmitter":184,"./ReactCurrentOwner":192,"./ReactDOMFeatureFlags":197,"./ReactElement":210,"./ReactEmptyComponentRegistry":213,"./ReactInstanceHandles":219,"./ReactInstanceMap":220,"./ReactMarkupChecksum":222,"./ReactPerf":229,"./ReactReconciler":234,"./ReactUpdateQueue":240,"./ReactUpdates":241,"./instantiateReactComponent":275,"./setInnerHTML":281,"./shouldUpdateReactComponent":283,"./validateDOMNesting":285,"C:\\Users\\rayde\\fixter\\creative_failure\\node_modules\\React\\lib\\ReactMount.js":66,"_process":157,"fbjs/lib/containsNode":290,"fbjs/lib/emptyObject":294,"fbjs/lib/invariant":301,"fbjs/lib/warning":312}],224:[function(require,module,exports){
+},{"./DOMProperty":168,"./Object.assign":181,"./ReactBrowserEventEmitter":185,"./ReactCurrentOwner":193,"./ReactDOMFeatureFlags":198,"./ReactElement":211,"./ReactEmptyComponentRegistry":214,"./ReactInstanceHandles":220,"./ReactInstanceMap":221,"./ReactMarkupChecksum":223,"./ReactPerf":230,"./ReactReconciler":235,"./ReactUpdateQueue":241,"./ReactUpdates":242,"./instantiateReactComponent":276,"./setInnerHTML":282,"./shouldUpdateReactComponent":284,"./validateDOMNesting":286,"C:\\Users\\rayde\\fixter\\creative_failure\\node_modules\\React\\lib\\ReactMount.js":66,"_process":157,"fbjs/lib/containsNode":291,"fbjs/lib/emptyObject":295,"fbjs/lib/invariant":302,"fbjs/lib/warning":313}],225:[function(require,module,exports){
 module.exports=require(67)
-},{"./ReactChildReconciler":185,"./ReactComponentEnvironment":190,"./ReactCurrentOwner":192,"./ReactMultiChildUpdateTypes":225,"./ReactReconciler":234,"./flattenChildren":266,"C:\\Users\\rayde\\fixter\\creative_failure\\node_modules\\React\\lib\\ReactMultiChild.js":67,"_process":157}],225:[function(require,module,exports){
+},{"./ReactChildReconciler":186,"./ReactComponentEnvironment":191,"./ReactCurrentOwner":193,"./ReactMultiChildUpdateTypes":226,"./ReactReconciler":235,"./flattenChildren":267,"C:\\Users\\rayde\\fixter\\creative_failure\\node_modules\\React\\lib\\ReactMultiChild.js":67,"_process":157}],226:[function(require,module,exports){
 module.exports=require(68)
-},{"C:\\Users\\rayde\\fixter\\creative_failure\\node_modules\\React\\lib\\ReactMultiChildUpdateTypes.js":68,"fbjs/lib/keyMirror":304}],226:[function(require,module,exports){
+},{"C:\\Users\\rayde\\fixter\\creative_failure\\node_modules\\React\\lib\\ReactMultiChildUpdateTypes.js":68,"fbjs/lib/keyMirror":305}],227:[function(require,module,exports){
 module.exports=require(69)
-},{"./Object.assign":180,"C:\\Users\\rayde\\fixter\\creative_failure\\node_modules\\React\\lib\\ReactNativeComponent.js":69,"_process":157,"fbjs/lib/invariant":301}],227:[function(require,module,exports){
+},{"./Object.assign":181,"C:\\Users\\rayde\\fixter\\creative_failure\\node_modules\\React\\lib\\ReactNativeComponent.js":69,"_process":157,"fbjs/lib/invariant":302}],228:[function(require,module,exports){
 module.exports=require(70)
-},{"C:\\Users\\rayde\\fixter\\creative_failure\\node_modules\\React\\lib\\ReactNoopUpdateQueue.js":70,"_process":157,"fbjs/lib/warning":312}],228:[function(require,module,exports){
+},{"C:\\Users\\rayde\\fixter\\creative_failure\\node_modules\\React\\lib\\ReactNoopUpdateQueue.js":70,"_process":157,"fbjs/lib/warning":313}],229:[function(require,module,exports){
 module.exports=require(71)
-},{"C:\\Users\\rayde\\fixter\\creative_failure\\node_modules\\React\\lib\\ReactOwner.js":71,"_process":157,"fbjs/lib/invariant":301}],229:[function(require,module,exports){
+},{"C:\\Users\\rayde\\fixter\\creative_failure\\node_modules\\React\\lib\\ReactOwner.js":71,"_process":157,"fbjs/lib/invariant":302}],230:[function(require,module,exports){
 module.exports=require(72)
-},{"C:\\Users\\rayde\\fixter\\creative_failure\\node_modules\\React\\lib\\ReactPerf.js":72,"_process":157}],230:[function(require,module,exports){
+},{"C:\\Users\\rayde\\fixter\\creative_failure\\node_modules\\React\\lib\\ReactPerf.js":72,"_process":157}],231:[function(require,module,exports){
 module.exports=require(73)
-},{"C:\\Users\\rayde\\fixter\\creative_failure\\node_modules\\React\\lib\\ReactPropTypeLocationNames.js":73,"_process":157}],231:[function(require,module,exports){
+},{"C:\\Users\\rayde\\fixter\\creative_failure\\node_modules\\React\\lib\\ReactPropTypeLocationNames.js":73,"_process":157}],232:[function(require,module,exports){
 module.exports=require(74)
-},{"C:\\Users\\rayde\\fixter\\creative_failure\\node_modules\\React\\lib\\ReactPropTypeLocations.js":74,"fbjs/lib/keyMirror":304}],232:[function(require,module,exports){
+},{"C:\\Users\\rayde\\fixter\\creative_failure\\node_modules\\React\\lib\\ReactPropTypeLocations.js":74,"fbjs/lib/keyMirror":305}],233:[function(require,module,exports){
 module.exports=require(75)
-},{"./ReactElement":210,"./ReactPropTypeLocationNames":230,"./getIteratorFn":272,"C:\\Users\\rayde\\fixter\\creative_failure\\node_modules\\React\\lib\\ReactPropTypes.js":75,"fbjs/lib/emptyFunction":293}],233:[function(require,module,exports){
+},{"./ReactElement":211,"./ReactPropTypeLocationNames":231,"./getIteratorFn":273,"C:\\Users\\rayde\\fixter\\creative_failure\\node_modules\\React\\lib\\ReactPropTypes.js":75,"fbjs/lib/emptyFunction":294}],234:[function(require,module,exports){
 module.exports=require(76)
-},{"./CallbackQueue":163,"./Object.assign":180,"./PooledClass":181,"./ReactBrowserEventEmitter":184,"./ReactDOMFeatureFlags":197,"./ReactInputSelection":218,"./Transaction":258,"C:\\Users\\rayde\\fixter\\creative_failure\\node_modules\\React\\lib\\ReactReconcileTransaction.js":76}],234:[function(require,module,exports){
+},{"./CallbackQueue":164,"./Object.assign":181,"./PooledClass":182,"./ReactBrowserEventEmitter":185,"./ReactDOMFeatureFlags":198,"./ReactInputSelection":219,"./Transaction":259,"C:\\Users\\rayde\\fixter\\creative_failure\\node_modules\\React\\lib\\ReactReconcileTransaction.js":76}],235:[function(require,module,exports){
 module.exports=require(77)
-},{"./ReactRef":235,"C:\\Users\\rayde\\fixter\\creative_failure\\node_modules\\React\\lib\\ReactReconciler.js":77}],235:[function(require,module,exports){
+},{"./ReactRef":236,"C:\\Users\\rayde\\fixter\\creative_failure\\node_modules\\React\\lib\\ReactReconciler.js":77}],236:[function(require,module,exports){
 module.exports=require(78)
-},{"./ReactOwner":228,"C:\\Users\\rayde\\fixter\\creative_failure\\node_modules\\React\\lib\\ReactRef.js":78}],236:[function(require,module,exports){
+},{"./ReactOwner":229,"C:\\Users\\rayde\\fixter\\creative_failure\\node_modules\\React\\lib\\ReactRef.js":78}],237:[function(require,module,exports){
 module.exports=require(79)
-},{"C:\\Users\\rayde\\fixter\\creative_failure\\node_modules\\React\\lib\\ReactRootIndex.js":79}],237:[function(require,module,exports){
+},{"C:\\Users\\rayde\\fixter\\creative_failure\\node_modules\\React\\lib\\ReactRootIndex.js":79}],238:[function(require,module,exports){
 module.exports=require(80)
-},{"C:\\Users\\rayde\\fixter\\creative_failure\\node_modules\\React\\lib\\ReactServerBatchingStrategy.js":80}],238:[function(require,module,exports){
+},{"C:\\Users\\rayde\\fixter\\creative_failure\\node_modules\\React\\lib\\ReactServerBatchingStrategy.js":80}],239:[function(require,module,exports){
 module.exports=require(81)
-},{"./ReactDefaultBatchingStrategy":206,"./ReactElement":210,"./ReactInstanceHandles":219,"./ReactMarkupChecksum":222,"./ReactServerBatchingStrategy":237,"./ReactServerRenderingTransaction":239,"./ReactUpdates":241,"./instantiateReactComponent":275,"C:\\Users\\rayde\\fixter\\creative_failure\\node_modules\\React\\lib\\ReactServerRendering.js":81,"_process":157,"fbjs/lib/emptyObject":294,"fbjs/lib/invariant":301}],239:[function(require,module,exports){
+},{"./ReactDefaultBatchingStrategy":207,"./ReactElement":211,"./ReactInstanceHandles":220,"./ReactMarkupChecksum":223,"./ReactServerBatchingStrategy":238,"./ReactServerRenderingTransaction":240,"./ReactUpdates":242,"./instantiateReactComponent":276,"C:\\Users\\rayde\\fixter\\creative_failure\\node_modules\\React\\lib\\ReactServerRendering.js":81,"_process":157,"fbjs/lib/emptyObject":295,"fbjs/lib/invariant":302}],240:[function(require,module,exports){
 module.exports=require(82)
-},{"./CallbackQueue":163,"./Object.assign":180,"./PooledClass":181,"./Transaction":258,"C:\\Users\\rayde\\fixter\\creative_failure\\node_modules\\React\\lib\\ReactServerRenderingTransaction.js":82,"fbjs/lib/emptyFunction":293}],240:[function(require,module,exports){
+},{"./CallbackQueue":164,"./Object.assign":181,"./PooledClass":182,"./Transaction":259,"C:\\Users\\rayde\\fixter\\creative_failure\\node_modules\\React\\lib\\ReactServerRenderingTransaction.js":82,"fbjs/lib/emptyFunction":294}],241:[function(require,module,exports){
 module.exports=require(83)
-},{"./Object.assign":180,"./ReactCurrentOwner":192,"./ReactElement":210,"./ReactInstanceMap":220,"./ReactUpdates":241,"C:\\Users\\rayde\\fixter\\creative_failure\\node_modules\\React\\lib\\ReactUpdateQueue.js":83,"_process":157,"fbjs/lib/invariant":301,"fbjs/lib/warning":312}],241:[function(require,module,exports){
+},{"./Object.assign":181,"./ReactCurrentOwner":193,"./ReactElement":211,"./ReactInstanceMap":221,"./ReactUpdates":242,"C:\\Users\\rayde\\fixter\\creative_failure\\node_modules\\React\\lib\\ReactUpdateQueue.js":83,"_process":157,"fbjs/lib/invariant":302,"fbjs/lib/warning":313}],242:[function(require,module,exports){
 module.exports=require(84)
-},{"./CallbackQueue":163,"./Object.assign":180,"./PooledClass":181,"./ReactPerf":229,"./ReactReconciler":234,"./Transaction":258,"C:\\Users\\rayde\\fixter\\creative_failure\\node_modules\\React\\lib\\ReactUpdates.js":84,"_process":157,"fbjs/lib/invariant":301}],242:[function(require,module,exports){
+},{"./CallbackQueue":164,"./Object.assign":181,"./PooledClass":182,"./ReactPerf":230,"./ReactReconciler":235,"./Transaction":259,"C:\\Users\\rayde\\fixter\\creative_failure\\node_modules\\React\\lib\\ReactUpdates.js":84,"_process":157,"fbjs/lib/invariant":302}],243:[function(require,module,exports){
 module.exports=require(85)
-},{"C:\\Users\\rayde\\fixter\\creative_failure\\node_modules\\React\\lib\\ReactVersion.js":85}],243:[function(require,module,exports){
+},{"C:\\Users\\rayde\\fixter\\creative_failure\\node_modules\\React\\lib\\ReactVersion.js":85}],244:[function(require,module,exports){
 module.exports=require(86)
-},{"./DOMProperty":167,"C:\\Users\\rayde\\fixter\\creative_failure\\node_modules\\React\\lib\\SVGDOMPropertyConfig.js":86}],244:[function(require,module,exports){
+},{"./DOMProperty":168,"C:\\Users\\rayde\\fixter\\creative_failure\\node_modules\\React\\lib\\SVGDOMPropertyConfig.js":86}],245:[function(require,module,exports){
 module.exports=require(87)
-},{"./EventConstants":172,"./EventPropagators":176,"./ReactInputSelection":218,"./SyntheticEvent":250,"./isTextInputElement":277,"C:\\Users\\rayde\\fixter\\creative_failure\\node_modules\\React\\lib\\SelectEventPlugin.js":87,"fbjs/lib/ExecutionEnvironment":287,"fbjs/lib/getActiveElement":296,"fbjs/lib/keyOf":305,"fbjs/lib/shallowEqual":310}],245:[function(require,module,exports){
+},{"./EventConstants":173,"./EventPropagators":177,"./ReactInputSelection":219,"./SyntheticEvent":251,"./isTextInputElement":278,"C:\\Users\\rayde\\fixter\\creative_failure\\node_modules\\React\\lib\\SelectEventPlugin.js":87,"fbjs/lib/ExecutionEnvironment":288,"fbjs/lib/getActiveElement":297,"fbjs/lib/keyOf":306,"fbjs/lib/shallowEqual":311}],246:[function(require,module,exports){
 module.exports=require(88)
-},{"C:\\Users\\rayde\\fixter\\creative_failure\\node_modules\\React\\lib\\ServerReactRootIndex.js":88}],246:[function(require,module,exports){
+},{"C:\\Users\\rayde\\fixter\\creative_failure\\node_modules\\React\\lib\\ServerReactRootIndex.js":88}],247:[function(require,module,exports){
 module.exports=require(89)
-},{"./EventConstants":172,"./EventPropagators":176,"./ReactMount":223,"./SyntheticClipboardEvent":247,"./SyntheticDragEvent":249,"./SyntheticEvent":250,"./SyntheticFocusEvent":251,"./SyntheticKeyboardEvent":253,"./SyntheticMouseEvent":254,"./SyntheticTouchEvent":255,"./SyntheticUIEvent":256,"./SyntheticWheelEvent":257,"./getEventCharCode":268,"C:\\Users\\rayde\\fixter\\creative_failure\\node_modules\\React\\lib\\SimpleEventPlugin.js":89,"_process":157,"fbjs/lib/EventListener":286,"fbjs/lib/emptyFunction":293,"fbjs/lib/invariant":301,"fbjs/lib/keyOf":305}],247:[function(require,module,exports){
+},{"./EventConstants":173,"./EventPropagators":177,"./ReactMount":224,"./SyntheticClipboardEvent":248,"./SyntheticDragEvent":250,"./SyntheticEvent":251,"./SyntheticFocusEvent":252,"./SyntheticKeyboardEvent":254,"./SyntheticMouseEvent":255,"./SyntheticTouchEvent":256,"./SyntheticUIEvent":257,"./SyntheticWheelEvent":258,"./getEventCharCode":269,"C:\\Users\\rayde\\fixter\\creative_failure\\node_modules\\React\\lib\\SimpleEventPlugin.js":89,"_process":157,"fbjs/lib/EventListener":287,"fbjs/lib/emptyFunction":294,"fbjs/lib/invariant":302,"fbjs/lib/keyOf":306}],248:[function(require,module,exports){
 module.exports=require(90)
-},{"./SyntheticEvent":250,"C:\\Users\\rayde\\fixter\\creative_failure\\node_modules\\React\\lib\\SyntheticClipboardEvent.js":90}],248:[function(require,module,exports){
+},{"./SyntheticEvent":251,"C:\\Users\\rayde\\fixter\\creative_failure\\node_modules\\React\\lib\\SyntheticClipboardEvent.js":90}],249:[function(require,module,exports){
 module.exports=require(91)
-},{"./SyntheticEvent":250,"C:\\Users\\rayde\\fixter\\creative_failure\\node_modules\\React\\lib\\SyntheticCompositionEvent.js":91}],249:[function(require,module,exports){
+},{"./SyntheticEvent":251,"C:\\Users\\rayde\\fixter\\creative_failure\\node_modules\\React\\lib\\SyntheticCompositionEvent.js":91}],250:[function(require,module,exports){
 module.exports=require(92)
-},{"./SyntheticMouseEvent":254,"C:\\Users\\rayde\\fixter\\creative_failure\\node_modules\\React\\lib\\SyntheticDragEvent.js":92}],250:[function(require,module,exports){
+},{"./SyntheticMouseEvent":255,"C:\\Users\\rayde\\fixter\\creative_failure\\node_modules\\React\\lib\\SyntheticDragEvent.js":92}],251:[function(require,module,exports){
 module.exports=require(93)
-},{"./Object.assign":180,"./PooledClass":181,"C:\\Users\\rayde\\fixter\\creative_failure\\node_modules\\React\\lib\\SyntheticEvent.js":93,"_process":157,"fbjs/lib/emptyFunction":293,"fbjs/lib/warning":312}],251:[function(require,module,exports){
+},{"./Object.assign":181,"./PooledClass":182,"C:\\Users\\rayde\\fixter\\creative_failure\\node_modules\\React\\lib\\SyntheticEvent.js":93,"_process":157,"fbjs/lib/emptyFunction":294,"fbjs/lib/warning":313}],252:[function(require,module,exports){
 module.exports=require(94)
-},{"./SyntheticUIEvent":256,"C:\\Users\\rayde\\fixter\\creative_failure\\node_modules\\React\\lib\\SyntheticFocusEvent.js":94}],252:[function(require,module,exports){
+},{"./SyntheticUIEvent":257,"C:\\Users\\rayde\\fixter\\creative_failure\\node_modules\\React\\lib\\SyntheticFocusEvent.js":94}],253:[function(require,module,exports){
 module.exports=require(95)
-},{"./SyntheticEvent":250,"C:\\Users\\rayde\\fixter\\creative_failure\\node_modules\\React\\lib\\SyntheticInputEvent.js":95}],253:[function(require,module,exports){
+},{"./SyntheticEvent":251,"C:\\Users\\rayde\\fixter\\creative_failure\\node_modules\\React\\lib\\SyntheticInputEvent.js":95}],254:[function(require,module,exports){
 module.exports=require(96)
-},{"./SyntheticUIEvent":256,"./getEventCharCode":268,"./getEventKey":269,"./getEventModifierState":270,"C:\\Users\\rayde\\fixter\\creative_failure\\node_modules\\React\\lib\\SyntheticKeyboardEvent.js":96}],254:[function(require,module,exports){
+},{"./SyntheticUIEvent":257,"./getEventCharCode":269,"./getEventKey":270,"./getEventModifierState":271,"C:\\Users\\rayde\\fixter\\creative_failure\\node_modules\\React\\lib\\SyntheticKeyboardEvent.js":96}],255:[function(require,module,exports){
 module.exports=require(97)
-},{"./SyntheticUIEvent":256,"./ViewportMetrics":259,"./getEventModifierState":270,"C:\\Users\\rayde\\fixter\\creative_failure\\node_modules\\React\\lib\\SyntheticMouseEvent.js":97}],255:[function(require,module,exports){
+},{"./SyntheticUIEvent":257,"./ViewportMetrics":260,"./getEventModifierState":271,"C:\\Users\\rayde\\fixter\\creative_failure\\node_modules\\React\\lib\\SyntheticMouseEvent.js":97}],256:[function(require,module,exports){
 module.exports=require(98)
-},{"./SyntheticUIEvent":256,"./getEventModifierState":270,"C:\\Users\\rayde\\fixter\\creative_failure\\node_modules\\React\\lib\\SyntheticTouchEvent.js":98}],256:[function(require,module,exports){
+},{"./SyntheticUIEvent":257,"./getEventModifierState":271,"C:\\Users\\rayde\\fixter\\creative_failure\\node_modules\\React\\lib\\SyntheticTouchEvent.js":98}],257:[function(require,module,exports){
 module.exports=require(99)
-},{"./SyntheticEvent":250,"./getEventTarget":271,"C:\\Users\\rayde\\fixter\\creative_failure\\node_modules\\React\\lib\\SyntheticUIEvent.js":99}],257:[function(require,module,exports){
+},{"./SyntheticEvent":251,"./getEventTarget":272,"C:\\Users\\rayde\\fixter\\creative_failure\\node_modules\\React\\lib\\SyntheticUIEvent.js":99}],258:[function(require,module,exports){
 module.exports=require(100)
-},{"./SyntheticMouseEvent":254,"C:\\Users\\rayde\\fixter\\creative_failure\\node_modules\\React\\lib\\SyntheticWheelEvent.js":100}],258:[function(require,module,exports){
+},{"./SyntheticMouseEvent":255,"C:\\Users\\rayde\\fixter\\creative_failure\\node_modules\\React\\lib\\SyntheticWheelEvent.js":100}],259:[function(require,module,exports){
 module.exports=require(101)
-},{"C:\\Users\\rayde\\fixter\\creative_failure\\node_modules\\React\\lib\\Transaction.js":101,"_process":157,"fbjs/lib/invariant":301}],259:[function(require,module,exports){
+},{"C:\\Users\\rayde\\fixter\\creative_failure\\node_modules\\React\\lib\\Transaction.js":101,"_process":157,"fbjs/lib/invariant":302}],260:[function(require,module,exports){
 module.exports=require(102)
-},{"C:\\Users\\rayde\\fixter\\creative_failure\\node_modules\\React\\lib\\ViewportMetrics.js":102}],260:[function(require,module,exports){
+},{"C:\\Users\\rayde\\fixter\\creative_failure\\node_modules\\React\\lib\\ViewportMetrics.js":102}],261:[function(require,module,exports){
 module.exports=require(103)
-},{"C:\\Users\\rayde\\fixter\\creative_failure\\node_modules\\React\\lib\\accumulateInto.js":103,"_process":157,"fbjs/lib/invariant":301}],261:[function(require,module,exports){
+},{"C:\\Users\\rayde\\fixter\\creative_failure\\node_modules\\React\\lib\\accumulateInto.js":103,"_process":157,"fbjs/lib/invariant":302}],262:[function(require,module,exports){
 module.exports=require(104)
-},{"C:\\Users\\rayde\\fixter\\creative_failure\\node_modules\\React\\lib\\adler32.js":104}],262:[function(require,module,exports){
+},{"C:\\Users\\rayde\\fixter\\creative_failure\\node_modules\\React\\lib\\adler32.js":104}],263:[function(require,module,exports){
 module.exports=require(105)
-},{"./CSSProperty":161,"C:\\Users\\rayde\\fixter\\creative_failure\\node_modules\\React\\lib\\dangerousStyleValue.js":105}],263:[function(require,module,exports){
+},{"./CSSProperty":162,"C:\\Users\\rayde\\fixter\\creative_failure\\node_modules\\React\\lib\\dangerousStyleValue.js":105}],264:[function(require,module,exports){
 module.exports=require(106)
-},{"./Object.assign":180,"C:\\Users\\rayde\\fixter\\creative_failure\\node_modules\\React\\lib\\deprecated.js":106,"_process":157,"fbjs/lib/warning":312}],264:[function(require,module,exports){
+},{"./Object.assign":181,"C:\\Users\\rayde\\fixter\\creative_failure\\node_modules\\React\\lib\\deprecated.js":106,"_process":157,"fbjs/lib/warning":313}],265:[function(require,module,exports){
 module.exports=require(107)
-},{"C:\\Users\\rayde\\fixter\\creative_failure\\node_modules\\React\\lib\\escapeTextContentForBrowser.js":107}],265:[function(require,module,exports){
+},{"C:\\Users\\rayde\\fixter\\creative_failure\\node_modules\\React\\lib\\escapeTextContentForBrowser.js":107}],266:[function(require,module,exports){
 module.exports=require(108)
-},{"./ReactCurrentOwner":192,"./ReactInstanceMap":220,"./ReactMount":223,"C:\\Users\\rayde\\fixter\\creative_failure\\node_modules\\React\\lib\\findDOMNode.js":108,"_process":157,"fbjs/lib/invariant":301,"fbjs/lib/warning":312}],266:[function(require,module,exports){
+},{"./ReactCurrentOwner":193,"./ReactInstanceMap":221,"./ReactMount":224,"C:\\Users\\rayde\\fixter\\creative_failure\\node_modules\\React\\lib\\findDOMNode.js":108,"_process":157,"fbjs/lib/invariant":302,"fbjs/lib/warning":313}],267:[function(require,module,exports){
 module.exports=require(109)
-},{"./traverseAllChildren":284,"C:\\Users\\rayde\\fixter\\creative_failure\\node_modules\\React\\lib\\flattenChildren.js":109,"_process":157,"fbjs/lib/warning":312}],267:[function(require,module,exports){
+},{"./traverseAllChildren":285,"C:\\Users\\rayde\\fixter\\creative_failure\\node_modules\\React\\lib\\flattenChildren.js":109,"_process":157,"fbjs/lib/warning":313}],268:[function(require,module,exports){
 module.exports=require(110)
-},{"C:\\Users\\rayde\\fixter\\creative_failure\\node_modules\\React\\lib\\forEachAccumulated.js":110}],268:[function(require,module,exports){
+},{"C:\\Users\\rayde\\fixter\\creative_failure\\node_modules\\React\\lib\\forEachAccumulated.js":110}],269:[function(require,module,exports){
 module.exports=require(111)
-},{"C:\\Users\\rayde\\fixter\\creative_failure\\node_modules\\React\\lib\\getEventCharCode.js":111}],269:[function(require,module,exports){
+},{"C:\\Users\\rayde\\fixter\\creative_failure\\node_modules\\React\\lib\\getEventCharCode.js":111}],270:[function(require,module,exports){
 module.exports=require(112)
-},{"./getEventCharCode":268,"C:\\Users\\rayde\\fixter\\creative_failure\\node_modules\\React\\lib\\getEventKey.js":112}],270:[function(require,module,exports){
+},{"./getEventCharCode":269,"C:\\Users\\rayde\\fixter\\creative_failure\\node_modules\\React\\lib\\getEventKey.js":112}],271:[function(require,module,exports){
 module.exports=require(113)
-},{"C:\\Users\\rayde\\fixter\\creative_failure\\node_modules\\React\\lib\\getEventModifierState.js":113}],271:[function(require,module,exports){
+},{"C:\\Users\\rayde\\fixter\\creative_failure\\node_modules\\React\\lib\\getEventModifierState.js":113}],272:[function(require,module,exports){
 module.exports=require(114)
-},{"C:\\Users\\rayde\\fixter\\creative_failure\\node_modules\\React\\lib\\getEventTarget.js":114}],272:[function(require,module,exports){
+},{"C:\\Users\\rayde\\fixter\\creative_failure\\node_modules\\React\\lib\\getEventTarget.js":114}],273:[function(require,module,exports){
 module.exports=require(115)
-},{"C:\\Users\\rayde\\fixter\\creative_failure\\node_modules\\React\\lib\\getIteratorFn.js":115}],273:[function(require,module,exports){
+},{"C:\\Users\\rayde\\fixter\\creative_failure\\node_modules\\React\\lib\\getIteratorFn.js":115}],274:[function(require,module,exports){
 module.exports=require(116)
-},{"C:\\Users\\rayde\\fixter\\creative_failure\\node_modules\\React\\lib\\getNodeForCharacterOffset.js":116}],274:[function(require,module,exports){
+},{"C:\\Users\\rayde\\fixter\\creative_failure\\node_modules\\React\\lib\\getNodeForCharacterOffset.js":116}],275:[function(require,module,exports){
 module.exports=require(117)
-},{"C:\\Users\\rayde\\fixter\\creative_failure\\node_modules\\React\\lib\\getTextContentAccessor.js":117,"fbjs/lib/ExecutionEnvironment":287}],275:[function(require,module,exports){
+},{"C:\\Users\\rayde\\fixter\\creative_failure\\node_modules\\React\\lib\\getTextContentAccessor.js":117,"fbjs/lib/ExecutionEnvironment":288}],276:[function(require,module,exports){
 module.exports=require(118)
-},{"./Object.assign":180,"./ReactCompositeComponent":191,"./ReactEmptyComponent":212,"./ReactNativeComponent":226,"C:\\Users\\rayde\\fixter\\creative_failure\\node_modules\\React\\lib\\instantiateReactComponent.js":118,"_process":157,"fbjs/lib/invariant":301,"fbjs/lib/warning":312}],276:[function(require,module,exports){
+},{"./Object.assign":181,"./ReactCompositeComponent":192,"./ReactEmptyComponent":213,"./ReactNativeComponent":227,"C:\\Users\\rayde\\fixter\\creative_failure\\node_modules\\React\\lib\\instantiateReactComponent.js":118,"_process":157,"fbjs/lib/invariant":302,"fbjs/lib/warning":313}],277:[function(require,module,exports){
 module.exports=require(119)
-},{"C:\\Users\\rayde\\fixter\\creative_failure\\node_modules\\React\\lib\\isEventSupported.js":119,"fbjs/lib/ExecutionEnvironment":287}],277:[function(require,module,exports){
+},{"C:\\Users\\rayde\\fixter\\creative_failure\\node_modules\\React\\lib\\isEventSupported.js":119,"fbjs/lib/ExecutionEnvironment":288}],278:[function(require,module,exports){
 module.exports=require(120)
-},{"C:\\Users\\rayde\\fixter\\creative_failure\\node_modules\\React\\lib\\isTextInputElement.js":120}],278:[function(require,module,exports){
+},{"C:\\Users\\rayde\\fixter\\creative_failure\\node_modules\\React\\lib\\isTextInputElement.js":120}],279:[function(require,module,exports){
 module.exports=require(121)
-},{"./ReactElement":210,"C:\\Users\\rayde\\fixter\\creative_failure\\node_modules\\React\\lib\\onlyChild.js":121,"_process":157,"fbjs/lib/invariant":301}],279:[function(require,module,exports){
+},{"./ReactElement":211,"C:\\Users\\rayde\\fixter\\creative_failure\\node_modules\\React\\lib\\onlyChild.js":121,"_process":157,"fbjs/lib/invariant":302}],280:[function(require,module,exports){
 module.exports=require(122)
-},{"./escapeTextContentForBrowser":264,"C:\\Users\\rayde\\fixter\\creative_failure\\node_modules\\React\\lib\\quoteAttributeValueForBrowser.js":122}],280:[function(require,module,exports){
+},{"./escapeTextContentForBrowser":265,"C:\\Users\\rayde\\fixter\\creative_failure\\node_modules\\React\\lib\\quoteAttributeValueForBrowser.js":122}],281:[function(require,module,exports){
 module.exports=require(123)
-},{"./ReactMount":223,"C:\\Users\\rayde\\fixter\\creative_failure\\node_modules\\React\\lib\\renderSubtreeIntoContainer.js":123}],281:[function(require,module,exports){
+},{"./ReactMount":224,"C:\\Users\\rayde\\fixter\\creative_failure\\node_modules\\React\\lib\\renderSubtreeIntoContainer.js":123}],282:[function(require,module,exports){
 module.exports=require(124)
-},{"C:\\Users\\rayde\\fixter\\creative_failure\\node_modules\\React\\lib\\setInnerHTML.js":124,"fbjs/lib/ExecutionEnvironment":287}],282:[function(require,module,exports){
+},{"C:\\Users\\rayde\\fixter\\creative_failure\\node_modules\\React\\lib\\setInnerHTML.js":124,"fbjs/lib/ExecutionEnvironment":288}],283:[function(require,module,exports){
 module.exports=require(125)
-},{"./escapeTextContentForBrowser":264,"./setInnerHTML":281,"C:\\Users\\rayde\\fixter\\creative_failure\\node_modules\\React\\lib\\setTextContent.js":125,"fbjs/lib/ExecutionEnvironment":287}],283:[function(require,module,exports){
+},{"./escapeTextContentForBrowser":265,"./setInnerHTML":282,"C:\\Users\\rayde\\fixter\\creative_failure\\node_modules\\React\\lib\\setTextContent.js":125,"fbjs/lib/ExecutionEnvironment":288}],284:[function(require,module,exports){
 module.exports=require(126)
-},{"C:\\Users\\rayde\\fixter\\creative_failure\\node_modules\\React\\lib\\shouldUpdateReactComponent.js":126}],284:[function(require,module,exports){
+},{"C:\\Users\\rayde\\fixter\\creative_failure\\node_modules\\React\\lib\\shouldUpdateReactComponent.js":126}],285:[function(require,module,exports){
 module.exports=require(127)
-},{"./ReactCurrentOwner":192,"./ReactElement":210,"./ReactInstanceHandles":219,"./getIteratorFn":272,"C:\\Users\\rayde\\fixter\\creative_failure\\node_modules\\React\\lib\\traverseAllChildren.js":127,"_process":157,"fbjs/lib/invariant":301,"fbjs/lib/warning":312}],285:[function(require,module,exports){
+},{"./ReactCurrentOwner":193,"./ReactElement":211,"./ReactInstanceHandles":220,"./getIteratorFn":273,"C:\\Users\\rayde\\fixter\\creative_failure\\node_modules\\React\\lib\\traverseAllChildren.js":127,"_process":157,"fbjs/lib/invariant":302,"fbjs/lib/warning":313}],286:[function(require,module,exports){
 module.exports=require(128)
-},{"./Object.assign":180,"C:\\Users\\rayde\\fixter\\creative_failure\\node_modules\\React\\lib\\validateDOMNesting.js":128,"_process":157,"fbjs/lib/emptyFunction":293,"fbjs/lib/warning":312}],286:[function(require,module,exports){
+},{"./Object.assign":181,"C:\\Users\\rayde\\fixter\\creative_failure\\node_modules\\React\\lib\\validateDOMNesting.js":128,"_process":157,"fbjs/lib/emptyFunction":294,"fbjs/lib/warning":313}],287:[function(require,module,exports){
 module.exports=require(129)
-},{"./emptyFunction":293,"C:\\Users\\rayde\\fixter\\creative_failure\\node_modules\\React\\node_modules\\fbjs\\lib\\EventListener.js":129,"_process":157}],287:[function(require,module,exports){
+},{"./emptyFunction":294,"C:\\Users\\rayde\\fixter\\creative_failure\\node_modules\\React\\node_modules\\fbjs\\lib\\EventListener.js":129,"_process":157}],288:[function(require,module,exports){
 module.exports=require(130)
-},{"C:\\Users\\rayde\\fixter\\creative_failure\\node_modules\\React\\node_modules\\fbjs\\lib\\ExecutionEnvironment.js":130}],288:[function(require,module,exports){
+},{"C:\\Users\\rayde\\fixter\\creative_failure\\node_modules\\React\\node_modules\\fbjs\\lib\\ExecutionEnvironment.js":130}],289:[function(require,module,exports){
 module.exports=require(131)
-},{"C:\\Users\\rayde\\fixter\\creative_failure\\node_modules\\React\\node_modules\\fbjs\\lib\\camelize.js":131}],289:[function(require,module,exports){
+},{"C:\\Users\\rayde\\fixter\\creative_failure\\node_modules\\React\\node_modules\\fbjs\\lib\\camelize.js":131}],290:[function(require,module,exports){
 module.exports=require(132)
-},{"./camelize":288,"C:\\Users\\rayde\\fixter\\creative_failure\\node_modules\\React\\node_modules\\fbjs\\lib\\camelizeStyleName.js":132}],290:[function(require,module,exports){
+},{"./camelize":289,"C:\\Users\\rayde\\fixter\\creative_failure\\node_modules\\React\\node_modules\\fbjs\\lib\\camelizeStyleName.js":132}],291:[function(require,module,exports){
 module.exports=require(133)
-},{"./isTextNode":303,"C:\\Users\\rayde\\fixter\\creative_failure\\node_modules\\React\\node_modules\\fbjs\\lib\\containsNode.js":133}],291:[function(require,module,exports){
+},{"./isTextNode":304,"C:\\Users\\rayde\\fixter\\creative_failure\\node_modules\\React\\node_modules\\fbjs\\lib\\containsNode.js":133}],292:[function(require,module,exports){
 module.exports=require(134)
-},{"./toArray":311,"C:\\Users\\rayde\\fixter\\creative_failure\\node_modules\\React\\node_modules\\fbjs\\lib\\createArrayFromMixed.js":134}],292:[function(require,module,exports){
+},{"./toArray":312,"C:\\Users\\rayde\\fixter\\creative_failure\\node_modules\\React\\node_modules\\fbjs\\lib\\createArrayFromMixed.js":134}],293:[function(require,module,exports){
 module.exports=require(135)
-},{"./ExecutionEnvironment":287,"./createArrayFromMixed":291,"./getMarkupWrap":297,"./invariant":301,"C:\\Users\\rayde\\fixter\\creative_failure\\node_modules\\React\\node_modules\\fbjs\\lib\\createNodesFromMarkup.js":135,"_process":157}],293:[function(require,module,exports){
+},{"./ExecutionEnvironment":288,"./createArrayFromMixed":292,"./getMarkupWrap":298,"./invariant":302,"C:\\Users\\rayde\\fixter\\creative_failure\\node_modules\\React\\node_modules\\fbjs\\lib\\createNodesFromMarkup.js":135,"_process":157}],294:[function(require,module,exports){
 module.exports=require(136)
-},{"C:\\Users\\rayde\\fixter\\creative_failure\\node_modules\\React\\node_modules\\fbjs\\lib\\emptyFunction.js":136}],294:[function(require,module,exports){
+},{"C:\\Users\\rayde\\fixter\\creative_failure\\node_modules\\React\\node_modules\\fbjs\\lib\\emptyFunction.js":136}],295:[function(require,module,exports){
 module.exports=require(137)
-},{"C:\\Users\\rayde\\fixter\\creative_failure\\node_modules\\React\\node_modules\\fbjs\\lib\\emptyObject.js":137,"_process":157}],295:[function(require,module,exports){
+},{"C:\\Users\\rayde\\fixter\\creative_failure\\node_modules\\React\\node_modules\\fbjs\\lib\\emptyObject.js":137,"_process":157}],296:[function(require,module,exports){
 module.exports=require(138)
-},{"C:\\Users\\rayde\\fixter\\creative_failure\\node_modules\\React\\node_modules\\fbjs\\lib\\focusNode.js":138}],296:[function(require,module,exports){
+},{"C:\\Users\\rayde\\fixter\\creative_failure\\node_modules\\React\\node_modules\\fbjs\\lib\\focusNode.js":138}],297:[function(require,module,exports){
 module.exports=require(139)
-},{"C:\\Users\\rayde\\fixter\\creative_failure\\node_modules\\React\\node_modules\\fbjs\\lib\\getActiveElement.js":139}],297:[function(require,module,exports){
+},{"C:\\Users\\rayde\\fixter\\creative_failure\\node_modules\\React\\node_modules\\fbjs\\lib\\getActiveElement.js":139}],298:[function(require,module,exports){
 module.exports=require(140)
-},{"./ExecutionEnvironment":287,"./invariant":301,"C:\\Users\\rayde\\fixter\\creative_failure\\node_modules\\React\\node_modules\\fbjs\\lib\\getMarkupWrap.js":140,"_process":157}],298:[function(require,module,exports){
+},{"./ExecutionEnvironment":288,"./invariant":302,"C:\\Users\\rayde\\fixter\\creative_failure\\node_modules\\React\\node_modules\\fbjs\\lib\\getMarkupWrap.js":140,"_process":157}],299:[function(require,module,exports){
 module.exports=require(141)
-},{"C:\\Users\\rayde\\fixter\\creative_failure\\node_modules\\React\\node_modules\\fbjs\\lib\\getUnboundedScrollPosition.js":141}],299:[function(require,module,exports){
+},{"C:\\Users\\rayde\\fixter\\creative_failure\\node_modules\\React\\node_modules\\fbjs\\lib\\getUnboundedScrollPosition.js":141}],300:[function(require,module,exports){
 module.exports=require(142)
-},{"C:\\Users\\rayde\\fixter\\creative_failure\\node_modules\\React\\node_modules\\fbjs\\lib\\hyphenate.js":142}],300:[function(require,module,exports){
+},{"C:\\Users\\rayde\\fixter\\creative_failure\\node_modules\\React\\node_modules\\fbjs\\lib\\hyphenate.js":142}],301:[function(require,module,exports){
 module.exports=require(143)
-},{"./hyphenate":299,"C:\\Users\\rayde\\fixter\\creative_failure\\node_modules\\React\\node_modules\\fbjs\\lib\\hyphenateStyleName.js":143}],301:[function(require,module,exports){
+},{"./hyphenate":300,"C:\\Users\\rayde\\fixter\\creative_failure\\node_modules\\React\\node_modules\\fbjs\\lib\\hyphenateStyleName.js":143}],302:[function(require,module,exports){
 module.exports=require(144)
-},{"C:\\Users\\rayde\\fixter\\creative_failure\\node_modules\\React\\node_modules\\fbjs\\lib\\invariant.js":144,"_process":157}],302:[function(require,module,exports){
+},{"C:\\Users\\rayde\\fixter\\creative_failure\\node_modules\\React\\node_modules\\fbjs\\lib\\invariant.js":144,"_process":157}],303:[function(require,module,exports){
 module.exports=require(145)
-},{"C:\\Users\\rayde\\fixter\\creative_failure\\node_modules\\React\\node_modules\\fbjs\\lib\\isNode.js":145}],303:[function(require,module,exports){
+},{"C:\\Users\\rayde\\fixter\\creative_failure\\node_modules\\React\\node_modules\\fbjs\\lib\\isNode.js":145}],304:[function(require,module,exports){
 module.exports=require(146)
-},{"./isNode":302,"C:\\Users\\rayde\\fixter\\creative_failure\\node_modules\\React\\node_modules\\fbjs\\lib\\isTextNode.js":146}],304:[function(require,module,exports){
+},{"./isNode":303,"C:\\Users\\rayde\\fixter\\creative_failure\\node_modules\\React\\node_modules\\fbjs\\lib\\isTextNode.js":146}],305:[function(require,module,exports){
 module.exports=require(147)
-},{"./invariant":301,"C:\\Users\\rayde\\fixter\\creative_failure\\node_modules\\React\\node_modules\\fbjs\\lib\\keyMirror.js":147,"_process":157}],305:[function(require,module,exports){
+},{"./invariant":302,"C:\\Users\\rayde\\fixter\\creative_failure\\node_modules\\React\\node_modules\\fbjs\\lib\\keyMirror.js":147,"_process":157}],306:[function(require,module,exports){
 module.exports=require(148)
-},{"C:\\Users\\rayde\\fixter\\creative_failure\\node_modules\\React\\node_modules\\fbjs\\lib\\keyOf.js":148}],306:[function(require,module,exports){
+},{"C:\\Users\\rayde\\fixter\\creative_failure\\node_modules\\React\\node_modules\\fbjs\\lib\\keyOf.js":148}],307:[function(require,module,exports){
 module.exports=require(149)
-},{"C:\\Users\\rayde\\fixter\\creative_failure\\node_modules\\React\\node_modules\\fbjs\\lib\\mapObject.js":149}],307:[function(require,module,exports){
+},{"C:\\Users\\rayde\\fixter\\creative_failure\\node_modules\\React\\node_modules\\fbjs\\lib\\mapObject.js":149}],308:[function(require,module,exports){
 module.exports=require(150)
-},{"C:\\Users\\rayde\\fixter\\creative_failure\\node_modules\\React\\node_modules\\fbjs\\lib\\memoizeStringOnly.js":150}],308:[function(require,module,exports){
+},{"C:\\Users\\rayde\\fixter\\creative_failure\\node_modules\\React\\node_modules\\fbjs\\lib\\memoizeStringOnly.js":150}],309:[function(require,module,exports){
 module.exports=require(151)
-},{"./ExecutionEnvironment":287,"C:\\Users\\rayde\\fixter\\creative_failure\\node_modules\\React\\node_modules\\fbjs\\lib\\performance.js":151}],309:[function(require,module,exports){
+},{"./ExecutionEnvironment":288,"C:\\Users\\rayde\\fixter\\creative_failure\\node_modules\\React\\node_modules\\fbjs\\lib\\performance.js":151}],310:[function(require,module,exports){
 module.exports=require(152)
-},{"./performance":308,"C:\\Users\\rayde\\fixter\\creative_failure\\node_modules\\React\\node_modules\\fbjs\\lib\\performanceNow.js":152}],310:[function(require,module,exports){
+},{"./performance":309,"C:\\Users\\rayde\\fixter\\creative_failure\\node_modules\\React\\node_modules\\fbjs\\lib\\performanceNow.js":152}],311:[function(require,module,exports){
 module.exports=require(153)
-},{"C:\\Users\\rayde\\fixter\\creative_failure\\node_modules\\React\\node_modules\\fbjs\\lib\\shallowEqual.js":153}],311:[function(require,module,exports){
+},{"C:\\Users\\rayde\\fixter\\creative_failure\\node_modules\\React\\node_modules\\fbjs\\lib\\shallowEqual.js":153}],312:[function(require,module,exports){
 module.exports=require(154)
-},{"./invariant":301,"C:\\Users\\rayde\\fixter\\creative_failure\\node_modules\\React\\node_modules\\fbjs\\lib\\toArray.js":154,"_process":157}],312:[function(require,module,exports){
+},{"./invariant":302,"C:\\Users\\rayde\\fixter\\creative_failure\\node_modules\\React\\node_modules\\fbjs\\lib\\toArray.js":154,"_process":157}],313:[function(require,module,exports){
 module.exports=require(155)
-},{"./emptyFunction":293,"C:\\Users\\rayde\\fixter\\creative_failure\\node_modules\\React\\node_modules\\fbjs\\lib\\warning.js":155,"_process":157}],313:[function(require,module,exports){
+},{"./emptyFunction":294,"C:\\Users\\rayde\\fixter\\creative_failure\\node_modules\\React\\node_modules\\fbjs\\lib\\warning.js":155,"_process":157}],314:[function(require,module,exports){
 module.exports=require(156)
-},{"./lib/React":182,"C:\\Users\\rayde\\fixter\\creative_failure\\node_modules\\React\\react.js":156}],314:[function(require,module,exports){
+},{"./lib/React":183,"C:\\Users\\rayde\\fixter\\creative_failure\\node_modules\\React\\react.js":156}],315:[function(require,module,exports){
 /**
  * Created by rayde on 1/12/2016.
  */

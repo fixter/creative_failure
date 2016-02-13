@@ -1,6 +1,8 @@
 branch-defaults:
-  master:
+  develop:
     environment: creative-failure-dev
+  master:
+    environment: creative-failure-prod
     group_suffix: null
 global:
   application_name: creative_failure

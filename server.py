@@ -1,7 +1,8 @@
 from flask import Flask, render_template
 
 
-app = Flask(__name__)
+application = Flask(__name__)
+app = application
 app.debug = True
 app.secret_key = 'Add secret key in a config file.'
 

@@ -37,7 +37,7 @@ gulp.task('foundation', function () {
     gulp.src('bower_components/foundation-sites/dist/foundation.min.js')
         .pipe(gulp.dest('static/build'));
     gulp.src('bower_components/jquery/dist/jquery.min.js')
-        .pipe('static/build');
+        .pipe(gulp.dest('static/build'));
 });
 
 gulp.task('react', function() {

@@ -5,11 +5,18 @@ var React = require('react');
 var ReactDom = require('react-dom');
 var HelloWorldApp = require('./components/HelloWorld.react');
 var FlipClock = require('flipclock');
+var moment = require('moment');
 
 $(document).foundation();
 
 //Do a tmp countdown to ross collier soundfest 2016
-var countdownClock = $('.countdown-timer').FlipClock(new Date(2016, 4, 3), {
+var now = moment();
+console.log(now);
+var sf = moment(new Date(2016, 3, 3));
+console.log(sf);
+var diff = sf.diff(now, 'seconds');
+console.log(diff);
+var countdownClock = $('.countdown-timer').FlipClock( diff, {
     countdown: true,
     clockFace: 'DailyCounter'
 });

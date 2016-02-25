@@ -25,6 +25,7 @@ This is a website for Creative Failure, a company owned by Ross Collier
   then go to the command line and run `python server.py` and then go to http://localhost:5000
 
 ## Development
+- You need to checkout develop before you checkout landing-page
 - You should make sure you are on the right branch before running `npm start` to avoid git conflicts when switching branches,
   and you should turn it off and on whenever you switch branches. 
   

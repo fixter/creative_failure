@@ -10,20 +10,6 @@ var moment = require('moment');
 
 $(document).foundation();
 
-//Do a tmp countdown to ross collier soundfest 2016
-var now = moment();
-console.log(now);
-var sf = moment(new Date(2016, 3, 3));
-console.log(sf);
-var diff = sf.diff(now, 'seconds');
-console.log(diff);
-var countdownClock = $('.countdown-timer').FlipClock( diff, {
-    countdown: true,
-    clockFace: 'DailyCounter'
-});
-
-//HelloWorldApp Component should be deleted. It is here just to make sure things work.
-//ReactDom.render(<HelloWorldApp/>, document.getElementById('react-container'));
 
 
 },{"./components/HelloWorld.react":316,"flipclock":158,"moment":159,"react":315,"react-dom":160}],2:[function(require,module,exports){

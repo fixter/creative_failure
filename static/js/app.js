@@ -4,9 +4,7 @@
 var React = require('react');
 var ReactDom = require('react-dom');
 var HelloWorldApp = require('./components/HelloWorld.react');
-var FlipClock = require('flipclock');
+//var FlipClock = require('flipclock');
 var moment = require('moment');
 
 $(document).foundation();
-
-

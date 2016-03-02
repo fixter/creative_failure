@@ -23289,9 +23289,22 @@ module.exports = HelloWorldApp;
 		xp++;
 	}
 
-	toc();
-	setInterval(toc, 1000);
+	//toc();
+	//setInterval(toc, 1000);
 
+	function creativeFailure(){
+		var letters = ['C', 'r', 'e', 'a', 't', 'i', 'v', 'e', 'F', 'a', 'i', 'l', 'u', 'r', 'e'];
+		hsl = "hsl(13, 40%, 26%)";
+
+		var w = (screen.width/letters.length) | 0;
+		if(xp < letters.length){
+			addNumber(w, w + (xp*w) % (screen.width - (w * 2)), letters[xp], 0.1, 0);
+			xp++
+		}
+	}
+	console.log(hsl);
+	creativeFailure();
+	setInterval(creativeFailure, 1000);
 	/* ==== main loop ==== */
 
 	function run() {

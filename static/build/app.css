@@ -36,6 +36,14 @@ body {
   background-color: #99AF88;
   min-height: 100%;
   min-width: 100%; }
+  .home-container .bottom-row a.fill-div {
+    position: absolute;
+    top: 65vh;
+    left: 0;
+    height: 35vh;
+    width: 50vw;
+    display: block;
+    text-decoration: none; }
   .home-container .bottom-row img {
     display: block;
     margin-left: auto;
@@ -58,13 +66,7 @@ body {
     max-height: 40vw;
     text-align: center; }
     .home-container .bottom-row .circle img {
-      display: block;
-      margin-left: auto;
-      margin-right: auto;
-      height: 24px;
-      width: 32px;
-      margin-top: 4vh;
-      z-index: 100; }
+      margin-top: 2vh; }
   .home-container .bottom-row .incircle {
     border-radius: 50%;
     width: 26.6vh;
@@ -99,15 +101,15 @@ body {
       position: absolute;
       right: 20px;
       top: 20px;
-      height: 24px;
-      width: 32px;
+      height: 32px;
+      width: 48px;
       z-index: 100; }
     .home-container .top-box .quote-box {
       display: block;
       position: absolute;
       text-align: center;
       width: 100%;
-      margin-top: 6vh; }
+      margin-top: 7vh; }
     .home-container .top-box h3 {
       font-family: Futura, sans-serif;
       color: #F9FFC4;
@@ -116,15 +118,37 @@ body {
   .home-container .left-box {
     height: 35vh;
     background-color: #081D35;
-    border-top: 0.7vh solid #F9FFC4; }
+    border-top: 0.7vh solid #F9FFC4;
+    transition: all 0.3s ease; }
     .home-container .left-box h1 {
       color: #F9FFC4; }
+    .home-container .left-box a.fill-div {
+      position: absolute;
+      top: 65vh;
+      left: 0;
+      height: 35vh;
+      width: 50vw;
+      display: block;
+      text-decoration: none; }
+  .home-container .left-box:hover {
+    border-top: 1vh solid #F9FFC4; }
   .home-container .right-box {
     height: 35vh;
     background-color: #F9FFC4;
-    border-top: 0.7vh solid #081D35; }
+    border-top: 0.7vh solid #081D35;
+    transition: all 0.3s ease; }
     .home-container .right-box h1 {
       color: #081D35; }
+    .home-container .right-box a.fill-div {
+      position: absolute;
+      top: 65vh;
+      left: 50vw;
+      height: 35vh;
+      width: 50vw;
+      display: block;
+      text-decoration: none; }
+  .home-container .right-box:hover {
+    border-top: 1vh solid #081D35; }
 
 /* Hvr-Bob Effect CSS */
 @-webkit-keyframes hvr-bob {
@@ -169,7 +193,8 @@ body {
   backface-visibility: hidden;
   -moz-osx-font-smoothing: grayscale; }
 
-.hvr-bob:hover, .hvr-bob:focus, .hvr-bob:active {
+/*.hvr-bob:hover, .hvr-bob:focus, .hvr-bob:active*/
+.hvr-bob {
   -webkit-animation-name: hvr-bob-float, hvr-bob;
   animation-name: hvr-bob-float, hvr-bob;
   -webkit-animation-duration: .3s, 1.5s;

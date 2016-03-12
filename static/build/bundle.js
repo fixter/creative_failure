@@ -23175,7 +23175,8 @@ module.exports = HelloWorldApp;
 	function addNumber(w, x, t, m, a) {
 		var h = (w * 0.69) | 0;
 		var img = PHY2D.number(w, h, t);
-		return PHY2D.rectangle(x, -w, w, h, m, a, img);
+		//return PHY2D.rectangle(x, -w, w, h, m, a, img);
+		return PHY2D.rectangle(x, 50, w, h, m, a, img);
 
 	}
 
@@ -23235,14 +23236,34 @@ module.exports = HelloWorldApp;
 		xp++;
 	}
 
-	toc();
-	setInterval(toc, 1000);
+	//toc();
+	//setInterval(toc, 1000);
+
+	function creativeFailure(){
+		var letters = ['C', 'r', 'e', 'a', 't', 'i', 'v', 'e', 'F', 'a', 'i', 'l', 'u', 'r', 'e'];
+		hsl = "hsl(13, 40%, 26%)";
+
+		var w = (screen.width/letters.length) | 0;
+		if(xp < letters.length){
+			addNumber(w, w + (xp*w) % (screen.width - (w * 2)), letters[xp], 0.1, 0);
+			xp++
+		}
+	}
+	console.log(hsl);
+	creativeFailure();
+	var difCtx = document.getElementById('screen').getContext('2d');
+	difCtx.clearRect(0, 0, screen.width, screen.height);
+	difCtx.font = '48px serif';
+	difCtx.fillText('Hello World', 100, 80);
+	setInterval(creativeFailure, 1000);
 
 	/* ==== main loop ==== */
 
 	function run() {
 		requestAnimationFrame(run);
 		ctx.clearRect(0, 0, screen.width, screen.height);
+		ctx.font = '48px serif';
+		ctx.fillText('Hello World', 100, 80);
 		PHY2D.render();
 
 	}

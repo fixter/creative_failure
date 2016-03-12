@@ -714,7 +714,8 @@
 	function addNumber(w, x, t, m, a) {
 		var h = (w * 0.69) | 0;
 		var img = PHY2D.number(w, h, t);
-		return PHY2D.rectangle(x, -w, w, h, m, a, img);
+		//return PHY2D.rectangle(x, -w, w, h, m, a, img);
+		return PHY2D.rectangle(x, 50, w, h, m, a, img);
 
 	}
 
@@ -787,14 +788,16 @@
 			xp++
 		}
 	}
-	console.log(hsl);
 	creativeFailure();
 	setInterval(creativeFailure, 1000);
+
 	/* ==== main loop ==== */
 
 	function run() {
 		requestAnimationFrame(run);
 		ctx.clearRect(0, 0, screen.width, screen.height);
+		ctx.font = '48px serif';
+		ctx.fillText('Hello World', 100, 80);
 		PHY2D.render();
 
 	}

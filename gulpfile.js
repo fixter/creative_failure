@@ -51,10 +51,6 @@ gulp.task('react', function() {
         .pipe(gulp.dest('static/build'));
 });
 
-gulp.task('tmpFlipclock', function(){
-   gulp.src('node_modules/flipclock/compiled/flipclock.css')
-       .pipe(gulp.dest('static/build'));
-});
 
 gulp.task('watch', function(){
     gulp.watch(['static/**/*.scss'], ['sass']);

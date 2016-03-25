@@ -24,7 +24,6 @@ body {
   bottom: 0;
   left: 0;
   right: 0;
-  background: #99AF88;
   cursor: pointer; }
 
 .row {
@@ -110,6 +109,15 @@ body {
       text-align: center;
       width: 100%;
       margin-top: 7vh; }
+    .home-container .top-box .logo-box {
+      display: block;
+      position: absolute;
+      text-align: center;
+      width: 100%;
+      margin-top: 10vh; }
+      .home-container .top-box .logo-box #first-C {
+        left: 40%;
+        position: absolute; }
     .home-container .top-box h3 {
       font-family: Futura, sans-serif;
       color: #F9FFC4;

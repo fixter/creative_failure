@@ -674,7 +674,7 @@
 				var context = img.getContext("2d");
 				img.width = w;
 				img.height = h;
-				context.font = "bold " + (w * 0.92) + "px arial";
+				context.font = "bold " + (w * 0.92) + "px Futura";
 				context.fillStyle = hsl;
 				context.fillText(text, 0, h * 0.97);
 				return img;
@@ -711,11 +711,11 @@
 		xp = 0;
 	var hour, minut, seconds = [];
 
-	function addNumber(w, x, t, m, a) {
-		var h = (w * 0.69) | 0;
+	function addNumber(w, x, y, t, m, a) {
+		var h = (w * 0.92) | 0;
 		var img = PHY2D.number(w, h, t);
 		//return PHY2D.rectangle(x, -w, w, h, m, a, img);
-		return PHY2D.rectangle(x, 50, w, h, m, a, img);
+		return PHY2D.rectangle(x, y, w, h, m, a, img);
 
 	}
 
@@ -779,25 +779,60 @@
 	//setInterval(toc, 1000);
 
 	function creativeFailure(){
-		var letters = ['C', 'r', 'e', 'a', 't', 'i', 'v', 'e', 'F', 'a', 'i', 'l', 'u', 'r', 'e'];
+		var topFallingLetters = ['C', 'R', 'E', 'A', 'T', 'I', 'V', 'E'];
+		var bottomFallingLetters = ['F', 'A', 'I', 'L', 'U', 'R', 'E'];
 		hsl = "hsl(13, 40%, 26%)";
 
-		var w = (screen.width/letters.length) | 0;
-		if(xp < letters.length){
-			addNumber(w, w + (xp*w) % (screen.width - (w * 2)), letters[xp], 0.1, 0);
-			xp++
+		var w = screen.width/10;
+
+		if(count1 < topFallingLetters.length){
+			addNumber(w, (screen.width/3.9)+ (count1*screen.width/15), screen.height/2.9, topFallingLetters[count1], 0.1, 0);
+			count1++;
 		}
+		if(count1 >= topFallingLetters.length && count2 < bottomFallingLetters.length){
+			addNumber(w, screen.width/3.9 + (count2 * screen.width/12.9), screen.height/1.6, bottomFallingLetters[count2], 0.1, 0);
+			count2++;
+		}
+		//bottomFallingLetters.forEach(function(letter, index){
+			//addNumber(w, w + (index*w) % (screen.width - (w * 2)), letter, 0.1, 0);
+		//});
 	}
+	var count1 = 0;
+	var count2 = 0;
 	creativeFailure();
-	setInterval(creativeFailure, 1000);
+	setInterval(creativeFailure, 500);
 
 	/* ==== main loop ==== */
+
+	function backgroundText() {
+		var topLetters = ['C', 'R', 'E', 'A', 'T', 'I', 'V', 'E'];
+		var bottomLetters = ['F', 'A', 'I', 'L', 'U', 'R', 'E'];
+		ctx.clearRect(0, 0, screen.width, screen.height);
+		var w = (screen.width/10) | 0;
+		ctx.font = (w * 0.92) + "px Futura";
+		ctx.fillStyle = "#CA7244";
+		ctx.textAlign = "center";
+
+		ctx.lineWidth = 8;
+		ctx.strokeStyle = '#A93421';
+		topLetters.forEach(function(letter, index){
+			ctx.strokeText(letter, (screen.width/3.9)+ (index*screen.width/15), screen.height/2.1);
+			ctx.fillText(letter, (screen.width/3.9)+ (index*screen.width/15), screen.height/2.1);
+		});
+		bottomLetters.forEach(function(letter, index){
+			ctx.strokeText(letter, screen.width/3.9 + (index * screen.width/12.9), screen.height/1.3);
+			ctx.fillText(letter, screen.width/3.9 + (index * screen.width/12.9), screen.height/1.3);
+		});
+	}
 
 	function run() {
 		requestAnimationFrame(run);
 		ctx.clearRect(0, 0, screen.width, screen.height);
-		ctx.font = '48px serif';
-		ctx.fillText('Hello World', 100, 80);
+		var w = (screen.width/15) | 0;
+		ctx.font = (w * 0.92) + "px Futura";
+		ctx.fillStyle = "#A93421";
+		//ctx.text-align = "center";
+		backgroundText();
 		PHY2D.render();
 
 	}

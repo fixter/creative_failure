@@ -139,7 +139,7 @@ body {
       display: block;
       text-decoration: none; }
   .home-container .left-box:hover {
-    border-top: 1vh solid #F9FFC4; }
+    /* border-top: 1vh solid $cf-cream; */ }
   .home-container .right-box {
     height: 35vh;
     background-color: #F9FFC4;
@@ -156,7 +156,7 @@ body {
       display: block;
       text-decoration: none; }
   .home-container .right-box:hover {
-    border-top: 1vh solid #081D35; }
+    /* border-top: 1vh solid $cf-blue; */ }
 
 /* Hvr-Bob Effect CSS */
 @-webkit-keyframes hvr-bob {

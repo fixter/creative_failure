@@ -1,6 +1,6 @@
 branch-defaults:
   develop:
-    environment: creative-failure-dev
+    environment: null
   master:
     environment: creative-failure-prod
     group_suffix: null

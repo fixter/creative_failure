@@ -218,6 +218,82 @@ body {
   -webkit-animation-direction: normal, alternate;
   animation-direction: normal, alternate; }
 
+#green {
+  background-color: #99AF88; }
+
+#blue {
+  background-color: #081D35; }
+
+#rust {
+  background-color: #A93421; }
+
+#cream {
+  background-color: #F9FFC4; }
+
+.blue-top {
+  border-top: 0.7vh solid #081D35;
+  min-height: 50px; }
+
+.cream-top {
+  border-top: 0.7vh solid #F9FFC4;
+  min-height: 40px; }
+
+#email-head {
+  position: fixed;
+  height: 30px;
+  right: 2vw;
+  top: 5px; }
+
+#email-head:hover {
+  top: 6px; }
+
+.head {
+  height: 40px !important;
+  position: fixed;
+  width: 100%;
+  z-index: 100;
+  padding: 0 2vw;
+  text-align: center; }
+  .head li {
+    display: inline;
+    padding-right: 5vw;
+    font-family: Futura;
+    font-size: 20px;
+    line-height: 40px; }
+    .head li a {
+      color: #081D35; }
+    .head li a:hover {
+      color: #A93421; }
+
+.head-pad {
+  margin-top: 40px; }
+
+.sect {
+  min-height: 90vh;
+  position: relative;
+  padding: 0 2vw; }
+  .sect p {
+    color: #F9FFC4;
+    font-family: Futura;
+    font-size: 20px;
+    line-height: 50px; }
+  .sect h1 {
+    color: #F9FFC4;
+    font-family: Futura;
+    font-size: 100px; }
+  .sect span {
+    width: 40px;
+    margin: 0 auto;
+    padding-bottom: 10px; }
+  .sect .arrow {
+    width: 100%;
+    position: absolute;
+    bottom: 0;
+    left: 0; }
+
+.foot {
+  min-height: 10vh; }
+
 /*! normalize.css v3.0.3 | MIT License | github.com/necolas/normalize.css */
 /**
    * 1. Set default font family to sans-serif.

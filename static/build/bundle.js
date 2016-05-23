@@ -5517,6 +5517,7 @@ module.exports = {
             if(falling != null && $('#landing-container').length){
                     falling();
             }
+            $(document).foundation();
         });
     },
 

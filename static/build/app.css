@@ -230,43 +230,51 @@ body {
 #cream {
   background-color: #F9FFC4; }
 
+h2 {
+  text-transform: uppercase;
+  font-size: 28px !important;
+  font-family: Futura; }
+
+#head-pad {
+  margin-top: 50px;
+  min-height: 90vh;
+  padding: 0; }
+  #head-pad iframe {
+    width: 100%;
+    height: 90vh; }
+  #head-pad .arrow {
+    width: 100%;
+    position: absolute;
+    bottom: 0;
+    left: 0; }
+
 .blue-top {
   border-top: 0.7vh solid #081D35;
   min-height: 50px; }
 
 .cream-top {
   border-top: 0.7vh solid #F9FFC4;
-  min-height: 40px; }
+  min-height: 50px; }
 
-#email-head {
+@media only screen and (max-width: 645px) {
+  .cream-top {
+    border-top: 0vh solid #F9FFC4; }
+  .blue-top {
+    border-top: 0vh solid #F9FFC4; }
+  .footer #cream {
+    background-color: #081D35; } }
+
+.top-bar {
   position: fixed;
-  height: 30px;
-  right: 2vw;
-  top: 5px; }
-
-#email-head:hover {
-  top: 6px; }
-
-.head {
-  height: 40px !important;
-  position: fixed;
+  top: 0;
   width: 100%;
-  z-index: 100;
-  padding: 0 2vw;
-  text-align: center; }
-  .head li {
-    display: inline;
-    padding-right: 5vw;
-    font-family: Futura;
-    font-size: 20px;
-    line-height: 40px; }
-    .head li a {
-      color: #081D35; }
-    .head li a:hover {
-      color: #A93421; }
-
-.head-pad {
-  margin-top: 40px; }
+  z-index: 1000;
+  background-color: #081D35 !important;
+  height: 50px; }
+  .top-bar li {
+    background-color: #081D35 !important; }
+  .top-bar a {
+    color: #F9FFC4; }
 
 .sect {
   min-height: 90vh;
@@ -276,11 +284,15 @@ body {
     color: #F9FFC4;
     font-family: Futura;
     font-size: 20px;
-    line-height: 50px; }
+    line-height: 30px; }
   .sect h1 {
     color: #F9FFC4;
     font-family: Futura;
     font-size: 100px; }
+  .sect h2 {
+    color: #F9FFC4;
+    font-family: Futura;
+    font-size: 32px; }
   .sect span {
     width: 40px;
     margin: 0 auto;
@@ -290,9 +302,11 @@ body {
     position: absolute;
     bottom: 0;
     left: 0; }
+  .sect .right {
+    text-align: right; }
 
 .foot {
-  min-height: 10vh; }
+  min-height: 50px; }
 
 /*! normalize.css v3.0.3 | MIT License | github.com/necolas/normalize.css */
 /**

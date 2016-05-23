@@ -1,4 +1,6 @@
-! function() {
+if(document.getElementById('landing-container') != null)
+{
+	! function() {
 	"use strict";
 
 	/* ==== screen setup ==== */
@@ -840,3 +842,4 @@
 	requestAnimationFrame(run);
 
 }();
+}

@@ -787,14 +787,24 @@ module.exports = {
 
             var w = screen.width / 10;
 
-            if (count1 < topFallingLetters.length) {
-                addNumber(w, (screen.width / 3.9) + (count1 * screen.width / 15), screen.height / 2.9, topFallingLetters[count1], 0.1, 0);
-                count1++;
-            }
-            if (count1 >= topFallingLetters.length && count2 < bottomFallingLetters.length) {
-                addNumber(w, screen.width / 3.9 + (count2 * screen.width / 12.9), screen.height / 1.6, bottomFallingLetters[count2], 0.1, 0);
-                count2++;
-            }
+            //if (count1 < topFallingLetters.length) {
+            //    //addNumber(w, (screen.width / 3.9) + (count1 * screen.width / 15), screen.height / 2.9, topFallingLetters[count1], 0.1, 0);
+            //    addNumber(w, (screen.width / 8.9) + (count1 * screen.width / 10), screen.height / 3.2, topFallingLetters[count1], 0.1, 0);
+            //    count1++;
+            //}
+            //if (count1 >= topFallingLetters.length && count2 < bottomFallingLetters.length) {
+            //    //addNumber(w, screen.width / 3.9 + (count2 * screen.width / 12.9), screen.height / 1.6, bottomFallingLetters[count2], 0.1, 0);
+            //    addNumber(w, screen.width / 8.9 + (count2 * screen.width / 7.9), screen.height / 1.6, bottomFallingLetters[count2], 0.1, 0);
+            //    count2++;
+            //}
+            //
+            topFallingLetters.forEach(function(letter, index){
+                addNumber(w, (screen.width / 6.9) + (index * screen.width / 10), screen.height / 3.5, letter, 0.1, 0);
+            });
+
+            bottomFallingLetters.forEach(function(letter, index){
+                addNumber(w, screen.width / 5.4 + (index * screen.width / 10.3), screen.height / 1.5, letter, 0.1, 0);
+            });
             //bottomFallingLetters.forEach(function(letter, index){
             //addNumber(w, w + (index*w) % (screen.width - (w * 2)), letter, 0.1, 0);
             //});
@@ -803,7 +813,7 @@ module.exports = {
         var count1 = 0;
         var count2 = 0;
         creativeFailure();
-        setInterval(creativeFailure, 500);
+        //setInterval(creativeFailure, 200);
 
         /* ==== main loop ==== */
 
@@ -819,12 +829,16 @@ module.exports = {
             ctx.lineWidth = 8;
             ctx.strokeStyle = '#A93421';
             topLetters.forEach(function (letter, index) {
-                ctx.strokeText(letter, (screen.width / 3.9) + (index * screen.width / 15), screen.height / 2.1);
-                ctx.fillText(letter, (screen.width / 3.9) + (index * screen.width / 15), screen.height / 2.1);
+                //ctx.strokeText(letter, (screen.width / 3.9) + (index * screen.width / 15), screen.height / 2.1);
+                //ctx.fillText(letter, (screen.width / 3.9) + (index * screen.width / 15), screen.height / 2.1);
+                ctx.strokeText(letter, (screen.width / 6.9) + (index * screen.width / 10.3), screen.height / 2.4);
+                ctx.fillText(letter, (screen.width / 6.9) + (index * screen.width / 10.3), screen.height / 2.4);
             });
             bottomLetters.forEach(function (letter, index) {
-                ctx.strokeText(letter, screen.width / 3.9 + (index * screen.width / 12.9), screen.height / 1.3);
-                ctx.fillText(letter, screen.width / 3.9 + (index * screen.width / 12.9), screen.height / 1.3);
+                //ctx.strokeText(letter, screen.width / 3.9 + (index * screen.width / 12.9), screen.height / 1.3);
+                //ctx.fillText(letter, screen.width / 3.9 + (index * screen.width / 12.9), screen.height / 1.3);
+                ctx.strokeText(letter, screen.width / 5 + (index * screen.width / 10.2), screen.height / 1.3);
+                ctx.fillText(letter, screen.width / 5 + (index * screen.width / 10.2), screen.height / 1.3);
             });
         }
 

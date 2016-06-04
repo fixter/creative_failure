@@ -26,8 +26,14 @@ $(window).on('popstate', function () {
         var newPageArray = location.pathname.split('/'),
         //this is the url of the page to be loaded
             newPage = newPageArray[newPageArray.length - 1].replace('.html', '');
-        console.log(window.isAnimating);
-        if (!window.isAnimating) transitions.triggerAnimation(newPage, false, falling.falling);
+        if (!window.isAnimating){
+            if(newPage == ''){
+                transitions.homePageAnimation(newPage, false, falling.falling);
+            }
+            else {
+                transitions.triggerAnimation(newPage, false);
+            }
+        }
     }
     window.firstLoad = true;
 });

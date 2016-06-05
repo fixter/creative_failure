@@ -279,7 +279,7 @@ h2 {
 .sect {
   min-height: 90vh;
   position: relative;
-  padding: 0 2vw; }
+  padding: 2vh 2vw; }
   .sect p {
     color: #F9FFC4;
     font-family: Futura;
@@ -288,7 +288,11 @@ h2 {
   .sect h1 {
     color: #F9FFC4;
     font-family: Futura;
-    font-size: 100px; }
+    font-size: 100px;
+    text-align: center; }
+  @media only screen and (max-width: 645px) {
+    .sect h1 {
+      font-size: 55px; } }
   .sect h2 {
     color: #F9FFC4;
     font-family: Futura;
@@ -304,6 +308,24 @@ h2 {
     left: 0; }
   .sect .right {
     text-align: right; }
+
+.circular {
+  width: 200px;
+  height: 200px;
+  border-radius: 150px;
+  -webkit-border-radius: 150px;
+  -moz-border-radius: 150px;
+  background-size: cover;
+  margin: 0 auto;
+  margin-bottom: 1vh;
+  border: 3px solid #A93421;
+  transition: all 0.3s ease; }
+  .circular:hover {
+    border: 3px solid #F9FFC4; }
+
+.testimonial {
+  text-align: center;
+  padding: 5vh 0; }
 
 .foot {
   min-height: 50px; }

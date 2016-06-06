@@ -13,6 +13,9 @@
   font-family: Futura;
   src: url("Futura.ttc"); }
 
+body, a, h1, h2, h3, h4, h5, h6, li, ul, ol, label, tr, td {
+  font-family: "Futura","Helvetica Neue",Helvetica,Arial,sans-serif !important; }
+
 body {
   margin: 0 0; }
 
@@ -295,6 +298,16 @@ h2 {
     left: 0; }
   .sect .right {
     text-align: right; }
+  .sect table {
+    margin: 30px 0px; }
+  .sect tbody, .sect table, .sect tr, .sect td {
+    background-color: #99AF88 !important;
+    border: none;
+    color: #F9FFC4; }
+    .sect tbody tr:nth-child(n+2), .sect table tr:nth-child(n+2), .sect tr tr:nth-child(n+2), .sect td tr:nth-child(n+2) {
+      border-top: 1px dashed #F9FFC4 !important; }
+    .sect tbody td:nth-of-type(2), .sect table td:nth-of-type(2), .sect tr td:nth-of-type(2), .sect td td:nth-of-type(2) {
+      text-align: right; }
 
 .contactSect {
   min-height: 40vh;

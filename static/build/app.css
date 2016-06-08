@@ -13,7 +13,7 @@
   font-family: Futura;
   src: url("Futura.ttc"); }
 
-body, a, h1, h2, h3, h4, h5, h6, li, ul, ol, label, tr, td {
+body, a, h1, h2, h3, h4, h5, h6, li, ul, ol, label, tr, td, .button {
   font-family: "Futura","Helvetica Neue",Helvetica,Arial,sans-serif !important; }
 
 body {
@@ -193,8 +193,14 @@ body {
   animation-fill-mode: forwards;
   animation-direction: normal, alternate; }
 
+.green {
+  background-color: #99AF88; }
+
 #green {
   background-color: #99AF88; }
+
+.blue {
+  background-color: #081D35; }
 
 #blue {
   background-color: #081D35; }
@@ -212,6 +218,16 @@ h2 {
   text-transform: uppercase;
   font-size: 28px !important;
   font-family: Futura; }
+
+.menu-icon {
+  height: 28px !important;
+  width: 24px !important; }
+
+#headerText {
+  text-transform: uppercase;
+  font-size: 28px !important;
+  line-height: 32px;
+  padding-left: 20px; }
 
 #head-pad {
   margin-top: 50px;
@@ -280,6 +296,13 @@ h2 {
     font-family: Futura;
     font-size: 100px;
     text-align: center; }
+  .sect .sc-text {
+    position: absolute;
+    top: 43vh;
+    z-index: -20;
+    width: 100%; }
+    .sect .sc-text p {
+      color: #A93421; }
   @media only screen and (max-width: 645px) {
     .sect h1 {
       font-size: 55px; } }
@@ -310,7 +333,7 @@ h2 {
       text-align: right; }
 
 .contactSect {
-  min-height: 40vh;
+  min-height: 30vh;
   background-color: #A93421 !important;
   position: relative;
   padding: 2vh 2vw;
@@ -332,6 +355,21 @@ h2 {
     color: #F9FFC4;
     font-family: Futura;
     font-size: 32px; }
+
+.cf-button {
+  display: inline-block;
+  color: #F9FFC4;
+  background: #99AF88;
+  font-size: 20px;
+  padding: 8px 16px;
+  border-radius: 4px;
+  transition: all 0.2s ease; }
+  .cf-button:hover {
+    color: #99AF88;
+    background: #F9FFC4;
+    transition: all 0.2s ease; }
+  .cf-button:focus {
+    color: #081D35; }
 
 .circular {
   width: 200px;

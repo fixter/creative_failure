@@ -1,5 +1,11 @@
+.green{
+  background-color: $cf-green;
+}
 #green{
   background-color: $cf-green;
+}
+.blue{
+  background-color: $cf-blue;
 }
 #blue{
   background-color: $cf-blue;
@@ -18,6 +24,16 @@ h2 {
   text-transform: uppercase;
   font-size: 28px!important;
   font-family: Futura;
+}
+.menu-icon{
+  height: 28px!important;
+  width: 24px!important;
+}
+#headerText{
+  text-transform: uppercase;
+  font-size: 28px !important;
+  line-height: 32px;
+  padding-left: 20px;
 }
 
 #head-pad{
@@ -96,7 +112,6 @@ h2 {
   min-height: 90vh;
   position: relative;
   padding: 2vh 2vw;
-
   p{
     color: $cf-cream;
     font-family: Futura;
@@ -108,6 +123,18 @@ h2 {
     font-family: Futura;
     font-size: 100px;
     text-align: center;
+  }
+  // .text-center{
+  //   text-align: center;
+  // }
+  .sc-text{
+    position: absolute;
+    top:43vh;
+    z-index: -20;
+    width: 100%;
+    p{
+      color: $cf-rust;
+    }
   }
   @media only screen and (max-width: 645px) {
     h1{
@@ -153,7 +180,7 @@ h2 {
 }
 
 .contactSect{
-  min-height: 40vh;
+  min-height: 30vh;
   background-color: $cf-rust !important;
   position: relative;
   padding: 2vh 2vw;
@@ -181,6 +208,29 @@ h2 {
     color: $cf-cream;
     font-family: Futura;
     font-size: 32px;
+  }
+}
+.cf-button{
+  display: inline-block;
+  color: $cf-cream;
+  background: $cf-green;
+  font-size: 20px;
+  padding: 8px 16px;
+  border-radius: 4px;
+  -webkit-transition: all 0.2s ease;
+  -moz-transition: all 0.2s ease;
+  -o-transition: all 0.2s ease;
+  transition:all 0.2s ease;
+  &:hover{
+    color: $cf-green;
+    background: $cf-cream;
+    -webkit-transition: all 0.2s ease;
+    -moz-transition: all 0.2s ease;
+    -o-transition: all 0.2s ease;
+    transition:all 0.2s ease;
+  }
+  &:focus{
+    color: $cf-blue;
   }
 }
 

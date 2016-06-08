@@ -4,15 +4,21 @@
       <div class="top-bar">
         <div class="top-bar-title">
           <span data-responsive-toggle="responsive-menu" data-hide-for="medium">
-            <button class="menu-icon dark" type="button" data-toggle></button>
+            <button class="menu-icon light" type="button" data-toggle></button>
           </span>
-          <a data-menu="index"><h2>Creative Failure</h2></a>
+          <strong><a id="headerText" data-menu="index">Creative Failure</a></strong>
+          <!-- <a data-menu="index"><h2>Creative Failure</h2></a> -->
         </div>
         <div id="responsive-menu">
           <div class="top-bar-right">
             <ul class="dropdown menu" data-dropdown-menu>
               <li><a href="audio">Audio</a></li>
-              <li><a href="design">Design</a></li>
+              <li><a href="design">Design</a>
+                <ul class="menu vertical">
+                  <li><a href="#downLink">Credits</a></li>
+                  <li><a href="#pricingLink">Pricing</a></li>
+                </ul>
+              </li>
               <li><a href="#">Contact</a></li>
             </ul>
           </div>
@@ -21,14 +27,14 @@
     </div>
 
 
-      <div id="head-pad" class="sect small-12" style="background-color: grey;">
+      <div id="head-pad" class="sect rust small-12">
         <p>Collection of design work goes here</p>
         <div class="arrow small-12">
           <span class="hvr-bob"><div class="cborder"><a href="#downLink"><img src="../static/img/arrow-down-cream.svg" alt="Down Arrow"></a></div></span>
         </div>
       </div>
 
-      <div id="downLink" class="sect rust row small-12 align-middle">
+      <div id="downLink" class="sect green row small-12 align-middle">
         <div class="small-12 medium-12 large-6">
           <h1>
             Folks I've Had The Pleasure To Work With
@@ -40,8 +46,8 @@
       </div>
 
       </div>
-      <div class="contactSect small-12">
-        <p>Contact Me</p>
+      <div class="contactSect row align-middle">
+        <div class="small-12 columns"><a href="#" class="cf-button">Contact Me</a></div>
       </div>
 
       <!-- Footer -->

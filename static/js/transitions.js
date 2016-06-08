@@ -45,6 +45,13 @@ module.exports = {
                     self.triggerAnimation(sectionTarget, true);
                 }
                 window.firstLoad = true;
+            });
+            var form = $('form');
+            form.on('mousedown', 'input', function(){
+                $(this).focus();
+            });
+            form.on('mousedown', 'textarea', function(){
+                $(this).focus();
             })
         }
 

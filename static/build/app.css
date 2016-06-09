@@ -13,6 +13,9 @@
   font-family: Futura;
   src: url("Futura.ttc"); }
 
+body, a, h1, h2, h3, h4, h5, h6, li, ul, ol, label, tr, td, .button {
+  font-family: "Futura","Helvetica Neue",Helvetica,Arial,sans-serif !important; }
+
 body {
   margin: 0 0; }
 
@@ -190,11 +193,20 @@ body {
   animation-fill-mode: forwards;
   animation-direction: normal, alternate; }
 
+.green {
+  background-color: #99AF88; }
+
 #green {
   background-color: #99AF88; }
 
+.blue {
+  background-color: #081D35; }
+
 #blue {
   background-color: #081D35; }
+
+.rust {
+  background-color: #A93421; }
 
 #rust {
   background-color: #A93421; }
@@ -207,6 +219,16 @@ h2 {
   font-size: 28px !important;
   font-family: Futura; }
 
+.menu-icon {
+  height: 28px !important;
+  width: 24px !important; }
+
+#headerText {
+  text-transform: uppercase;
+  font-size: 28px !important;
+  line-height: 32px;
+  padding-left: 20px; }
+
 #head-pad {
   margin-top: 50px;
   min-height: 90vh;
@@ -217,8 +239,12 @@ h2 {
   #head-pad .arrow {
     width: 100%;
     position: absolute;
-    bottom: 0;
+    bottom: 20px;
     left: 0; }
+    #head-pad .arrow a {
+      background-color: rgba(0, 0, 0, 0.3);
+      padding: 22px 10px 18px 10px;
+      border-radius: 100px; }
 
 .blue-top {
   border-top: 0.7vh solid #081D35;
@@ -239,19 +265,32 @@ h2 {
 .top-bar {
   position: fixed;
   top: 0;
+  left: 0;
   width: 100%;
-  z-index: 1000;
+  z-index: 1;
   background-color: #081D35 !important;
   height: 50px; }
   .top-bar li {
     background-color: #081D35 !important; }
   .top-bar a {
     color: #F9FFC4; }
+    .top-bar a:hover {
+      color: #A93421; }
+  .top-bar ul {
+    border: none !important; }
+  .top-bar img {
+    display: block !important;
+    margin-left: auto;
+    margin-right: auto;
+    height: 24px;
+    width: 32px;
+    margin-top: 4vh;
+    z-index: 100; }
 
 .sect {
   min-height: 90vh;
   position: relative;
-  padding: 0 2vw; }
+  padding: 2vh 2vw; }
   .sect p {
     color: #F9FFC4;
     font-family: Futura;
@@ -260,7 +299,18 @@ h2 {
   .sect h1 {
     color: #F9FFC4;
     font-family: Futura;
-    font-size: 100px; }
+    font-size: 100px;
+    text-align: center; }
+  .sect .sc-text {
+    position: absolute;
+    top: 43vh;
+    z-index: -20;
+    width: 100%; }
+    .sect .sc-text p {
+      color: #A93421; }
+  @media only screen and (max-width: 645px) {
+    .sect h1 {
+      font-size: 55px; } }
   .sect h2 {
     color: #F9FFC4;
     font-family: Futura;
@@ -276,9 +326,203 @@ h2 {
     left: 0; }
   .sect .right {
     text-align: right; }
+  .sect table {
+    margin: 30px 0px; }
+  .sect tbody, .sect table, .sect tr, .sect td {
+    background-color: #99AF88 !important;
+    border: none;
+    color: #F9FFC4; }
+    .sect tbody tr:nth-child(n+2), .sect table tr:nth-child(n+2), .sect tr tr:nth-child(n+2), .sect td tr:nth-child(n+2) {
+      border-top: 1px dashed #F9FFC4 !important; }
+    .sect tbody td:nth-of-type(2), .sect table td:nth-of-type(2), .sect tr td:nth-of-type(2), .sect td td:nth-of-type(2) {
+      text-align: right; }
 
-.foot {
-  min-height: 50px; }
+.contactSect {
+  min-height: 30vh;
+  background-color: #A93421 !important;
+  position: relative;
+  padding: 2vh 2vw;
+  text-align: center; }
+  .contactSect p {
+    color: #F9FFC4;
+    font-family: Futura;
+    font-size: 20px;
+    line-height: 30px; }
+  .contactSect h1 {
+    color: #F9FFC4;
+    font-family: Futura;
+    font-size: 100px;
+    text-align: center; }
+  @media only screen and (max-width: 645px) {
+    .contactSect h1 {
+      font-size: 55px; } }
+  .contactSect h2 {
+    color: #F9FFC4;
+    font-family: Futura;
+    font-size: 32px; }
+
+.cf-button {
+  display: inline-block;
+  color: #F9FFC4;
+  background: #99AF88;
+  font-size: 20px;
+  padding: 8px 16px;
+  border-radius: 4px;
+  transition: all 0.2s ease; }
+  .cf-button:hover {
+    color: #99AF88;
+    background: #F9FFC4;
+    transition: all 0.2s ease; }
+  .cf-button:focus {
+    color: #081D35; }
+
+.circular {
+  width: 200px;
+  height: 200px;
+  border-radius: 150px;
+  -webkit-border-radius: 150px;
+  -moz-border-radius: 150px;
+  background-size: cover;
+  margin: 0 auto;
+  margin-bottom: 1vh;
+  border: 3px solid #A93421;
+  transition: all 0.3s ease; }
+  .circular:hover {
+    border: 3px solid #F9FFC4; }
+
+.testimonial {
+  text-align: center;
+  padding: 5vh 0; }
+
+.footer {
+  background-color: #081D35;
+  padding: 2rem 4rem;
+  text-align: center;
+  color: #F9FFC4; }
+  .footer i {
+    height: 15px;
+    width: 15px;
+    font-size: 30px; }
+
+.footer h4 {
+  color: #F9FFC4;
+  font-size: 1em;
+  font-weight: 400;
+  text-transform: uppercase;
+  margin-bottom: 10px; }
+
+.footer p, .footer a {
+  font-weight: 300;
+  font-size: .8em;
+  color: #F9FFC4; }
+
+.footer a:hover {
+  color: #A93421 !important; }
+
+.footer li {
+  margin-left: -8px; }
+
+.footer #email {
+  width: 25px; }
+
+@media only screen and (min-width: 40.063em) {
+  .footer .columns {
+    padding-top: 20px; }
+  .footer .columns:nth-child(n+2) {
+    border-left: 1px solid #F9FFC4; } }
+
+.footer-links {
+  list-style-type: none; }
+  .footer-links li {
+    margin-top: .5em; }
+
+dialog {
+  position: fixed;
+  left: 50%;
+  top: 50%;
+  -ms-transform: translate(-50%, -50%);
+      transform: translate(-50%, -50%);
+  margin: auto;
+  padding: 1em;
+  background: rgba(0, 0, 0, 0.8);
+  color: black;
+  display: none;
+  opacity: 0;
+  border: none; }
+
+dialog[open] {
+  display: block; }
+
+.backdrop {
+  position: fixed;
+  background-color: rgba(0, 0, 0, 0.6);
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0; }
+
+@keyframes fadeToNearBlack {
+  to {
+    background: rgba(0, 0, 0, 0.9) !important; } }
+
+@keyframes goBig {
+  to {
+    opacity: 1; } }
+
+nav#thumbs {
+  display: -ms-flexbox;
+  display: flex; }
+
+nav#thumbs a {
+  display: block;
+  -ms-flex: 1;
+      flex: 1; }
+
+nav#thumbs a img {
+  width: 100%;
+  height: auto; }
+
+dialog button {
+  border: none;
+  background: none;
+  font-size: 1.2rem; }
+
+dialog[open] {
+  animation: goBig 1s .4s forwards;
+  max-width: 1200px; }
+
+dialog[open]::-webkit-backdrop {
+  animation: fadeToNearBlack 1s forwards; }
+
+dialog[open]::backdrop {
+  animation: fadeToNearBlack 1s forwards; }
+
+.backdrop {
+  animation: fadeToNearBlack 1s forwards; }
+
+dialog img {
+  width: 100%;
+  height: auto; }
+
+#closecover {
+  color: white; }
+
+.no-pad {
+  padding: 0px !important;
+  padding-left: 0px !important;
+  padding-right: 0px !important; }
+
+.credits {
+  text-align: center; }
+
+.sect li {
+  color: #F9FFC4;
+  list-style-type: none;
+  width: 100%;
+  font-size: 20px; }
+
+.sect ul {
+  width: 100%; }
 
 .cd-section {
   position: absolute;

@@ -570,6 +570,18 @@ dialog img {
   /* this class is used to hide the scrolling bar while a new section is entering the viewport */
   overflow: hidden; }
 
+#contact-form {
+  background-color: #081C38; }
+  #contact-form label {
+    color: #FFED75; }
+  #contact-form h1 {
+    color: #FFED75; }
+  #contact-form button {
+    background-color: #C44831;
+    color: #FFED75; }
+  #contact-form textarea {
+    height: 50%; }
+
 /*! normalize.css v3.0.3 | MIT License | github.com/necolas/normalize.css */
 /**
    * 1. Set default font family to sans-serif.

@@ -84,8 +84,9 @@ h2 {
 .top-bar{
   position: fixed;
   top: 0;
+  left: 0;
   width: 100%;
-  z-index: 1000;
+  z-index: 1;
   background-color: $cf-blue!important;
   height: 50px;
 
@@ -95,8 +96,13 @@ h2 {
 
   a{
     color: $cf-cream;
+    &:hover{
+      color: $cf-rust;
+    }
   }
-
+  ul{
+    border: none!important;
+  }
   img{
     display: block !important;
     margin-left: auto;
@@ -284,6 +290,9 @@ h2 {
     font-weight: 300;
     font-size: .8em;
     color: $cf-cream;
+  }
+  a:hover{
+    color: $cf-rust !important;
   }
   li{
     margin-left: -8px;

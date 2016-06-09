@@ -265,14 +265,19 @@ h2 {
 .top-bar {
   position: fixed;
   top: 0;
+  left: 0;
   width: 100%;
-  z-index: 1000;
+  z-index: 1;
   background-color: #081D35 !important;
   height: 50px; }
   .top-bar li {
     background-color: #081D35 !important; }
   .top-bar a {
     color: #F9FFC4; }
+    .top-bar a:hover {
+      color: #A93421; }
+  .top-bar ul {
+    border: none !important; }
   .top-bar img {
     display: block !important;
     margin-left: auto;
@@ -411,6 +416,9 @@ h2 {
   font-size: .8em;
   color: #F9FFC4; }
 
+.footer a:hover {
+  color: #A93421 !important; }
+
 .footer li {
   margin-left: -8px; }
 
@@ -427,6 +435,94 @@ h2 {
   list-style-type: none; }
   .footer-links li {
     margin-top: .5em; }
+
+dialog {
+  position: fixed;
+  left: 50%;
+  top: 50%;
+  -ms-transform: translate(-50%, -50%);
+      transform: translate(-50%, -50%);
+  margin: auto;
+  padding: 1em;
+  background: rgba(0, 0, 0, 0.8);
+  color: black;
+  display: none;
+  opacity: 0;
+  border: none; }
+
+dialog[open] {
+  display: block; }
+
+.backdrop {
+  position: fixed;
+  background-color: rgba(0, 0, 0, 0.6);
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0; }
+
+@keyframes fadeToNearBlack {
+  to {
+    background: rgba(0, 0, 0, 0.9) !important; } }
+
+@keyframes goBig {
+  to {
+    opacity: 1; } }
+
+nav#thumbs {
+  display: -ms-flexbox;
+  display: flex; }
+
+nav#thumbs a {
+  display: block;
+  -ms-flex: 1;
+      flex: 1; }
+
+nav#thumbs a img {
+  width: 100%;
+  height: auto; }
+
+dialog button {
+  border: none;
+  background: none;
+  font-size: 1.2rem; }
+
+dialog[open] {
+  animation: goBig 1s .4s forwards;
+  max-width: 1200px; }
+
+dialog[open]::-webkit-backdrop {
+  animation: fadeToNearBlack 1s forwards; }
+
+dialog[open]::backdrop {
+  animation: fadeToNearBlack 1s forwards; }
+
+.backdrop {
+  animation: fadeToNearBlack 1s forwards; }
+
+dialog img {
+  width: 100%;
+  height: auto; }
+
+#closecover {
+  color: white; }
+
+.no-pad {
+  padding: 0px !important;
+  padding-left: 0px !important;
+  padding-right: 0px !important; }
+
+.credits {
+  text-align: center; }
+
+.sect li {
+  color: #F9FFC4;
+  list-style-type: none;
+  width: 100%;
+  font-size: 20px; }
+
+.sect ul {
+  width: 100%; }
 
 .cd-section {
   position: absolute;

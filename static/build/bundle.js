@@ -60,6 +60,31 @@ $(function() {
   });
 });
 
+// uses Google polyfill for dialog element in non-supporting browsers
+// (https://github.com/GoogleChrome/dialog-polyfill)
+
+function showImage(e) {
+	e.preventDefault();
+	coverimage.setAttribute("src", this.getAttribute("href"));
+	coverimage.setAttribute("alt", this.querySelector("img").getAttribute("alt"));
+	cover.showModal();
+}
+document.getElementById("closecover").onclick = function() {
+	coverimage.setAttribute("src", "");
+	cover.close();
+}
+var imglinks = document.getElementById("thumbs").getElementsByTagName('a'),
+cover = document.getElementById("cover"),
+coverimage = cover.getElementsByTagName("img")[0];
+testdialog=document.createElement("dialog");
+testdialog.setAttribute("open", "");
+if (!testdialog.open) {
+	dialogPolyfill.registerDialog(cover);
+}
+for (var i=0; i<imglinks.length; i++) {
+	imglinks[i].onclick = showImage;
+}
+
 },{"./falling.js":9,"./transitions":11,"moment":3}],2:[function(require,module,exports){
 
 /**

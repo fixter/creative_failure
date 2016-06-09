@@ -1,0 +1,84 @@
+// <<<<<<<<<<<<<<<<<<<< begin light box css >>>>>>>>>>>>>>>>>>>>
+dialog {
+    position: fixed;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    margin: auto;
+    padding: 1em;
+    background: rgba(0,0,0,.8);
+    color: black;
+    display: none;
+    opacity: 0;
+    border: none;
+}
+dialog[open] {
+    display: block;
+}
+.backdrop {
+    position: fixed;
+    background-color: rgba(0,0,0,0.6);
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+}
+@keyframes fadeToNearBlack {
+  to { background: rgba(0,0,0,0.9) !important; }
+}
+@keyframes goBig {
+  to { opacity: 1; }
+}
+nav#thumbs {
+  display: flex;
+}
+nav#thumbs a {
+  display: block;
+  flex: 1;
+}
+nav#thumbs a img {
+  width: 100%;
+  height: auto;
+}
+dialog button {
+  border: none;
+  background: none;
+  font-size: 1.2rem;
+}
+dialog[open] {
+  animation: goBig 1s .4s forwards;
+  max-width: 1200px;
+}
+dialog[open]::backdrop {
+  animation: fadeToNearBlack 1s forwards;
+}
+.backdrop {
+  animation: fadeToNearBlack 1s forwards;
+}
+dialog img {
+  width: 100%; height: auto;
+}
+#closecover{
+  color: white;
+}
+.no-pad{
+  padding: 0px!important;
+  padding-left: 0px!important;
+  padding-right: 0px!important;
+}
+// <<<<<<<<<<<<<<<<<<<< end light box css >>>>>>>>>>>>>>>>>>>>
+
+.credits{
+  text-align: center;
+}
+.sect {
+  li{
+    color: $cf-cream;
+    list-style-type: none;
+    width: 100%;
+    font-size: 20px;
+  }
+  ul{
+    width: 100%;
+  }
+}

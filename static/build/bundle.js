@@ -102,46 +102,6 @@ if ($('#landing-container').length) {
     falling.falling();
 }
 
-$(function() {
-  $('a[href*="#"]:not([href="#"])').click(function() {
-    if (location.pathname.replace(/^\//,'') == this.pathname.replace(/^\//,'') && location.hostname == this.hostname) {
-      var target = $(this.hash);
-      target = target.length ? target : $('[name=' + this.hash.slice(1) +']');
-      if (target.length) {
-        $('html, body').animate({
-          scrollTop: target.offset().top
-        }, 800);
-        return false;
-      }
-    }
-  });
-});
-
-// uses Google polyfill for dialog element in non-supporting browsers
-// (https://github.com/GoogleChrome/dialog-polyfill)
-
-function showImage(e) {
-	e.preventDefault();
-	coverimage.setAttribute("src", this.getAttribute("href"));
-	coverimage.setAttribute("alt", this.querySelector("img").getAttribute("alt"));
-	cover.showModal();
-}
-document.getElementById("closecover").onclick = function() {
-	coverimage.setAttribute("src", "");
-	cover.close();
-}
-var imglinks = document.getElementById("thumbs").getElementsByTagName('a'),
-cover = document.getElementById("cover"),
-coverimage = cover.getElementsByTagName("img")[0];
-testdialog=document.createElement("dialog");
-testdialog.setAttribute("open", "");
-if (!testdialog.open) {
-	dialogPolyfill.registerDialog(cover);
-}
-for (var i=0; i<imglinks.length; i++) {
-	imglinks[i].onclick = showImage;
-}
-
 },{"./falling.js":9,"./transitions":11,"moment":3,"superagent":5}],2:[function(require,module,exports){
 
 /**
@@ -5756,22 +5716,22 @@ module.exports = {
                 window.firstLoad = true;
             });
             var form = $('form');
-            form.on('mousedown', 'input', function(){
+            form.on('mousedown', 'input', function () {
                 $(this).focus();
             });
-            form.on('mousedown', 'textarea', function(){
+            form.on('mousedown', 'textarea', function () {
                 $(this).focus();
             })
         }
 
         var audioPage = $('#audio-container');
-        if(audioPage != null && audioPage.length){
-            $('.top-bar-title').on('click', 'a', function(event){
-               event.preventDefault();
+        if (audioPage != null && audioPage.length) {
+            $('.top-bar-title').on('click', 'a', function (event) {
+                event.preventDefault();
                 var target = $(this);
                 var sectionTarget = target.data('menu');
-                if(!target.hasClass('selected') && !window.isAnimating){
-                    if(sectionTarget == 'index'){
+                if (!target.hasClass('selected') && !window.isAnimating) {
+                    if (sectionTarget == 'index') {
                         self.homePageAnimation('', true, falling.falling);
                     }
                     else {
@@ -5781,9 +5741,54 @@ module.exports = {
                 window.firstLoad = true;
             });
         }
+
+        // this handles the image viewer on the design page.
+        var closecover = $('#closecover');
+        if (closecover != null && closecover.length) {
+            // uses Google polyfill for dialog element in non-supporting browsers
+            // (https://github.com/GoogleChrome/dialog-polyfill)
+            function showImage (e) {
+                e.preventDefault();
+                coverimage.setAttribute("src", this.getAttribute("href"));
+                coverimage.setAttribute("alt", this.querySelector("img").getAttribute("alt"));
+                cover.showModal();
+            }
+
+            document.getElementById("closecover").onclick = function () {
+                coverimage.setAttribute("src", "");
+                cover.close();
+            };
+            var imglinks = document.getElementById("thumbs").getElementsByTagName('a'),
+                cover = document.getElementById("cover"),
+                coverimage = cover.getElementsByTagName("img")[0],
+                testdialog = document.createElement("dialog");
+            testdialog.setAttribute("open", "");
+            if (!testdialog.open) {
+                dialogPolyfill.registerDialog(cover);
+            }
+            for (var i = 0; i < imglinks.length; i++) {
+                imglinks[i].onclick = showImage;
+            }
+
+        }
+        // Run this every load. This helps scroll down on audio and design pages.
+        $(function () {
+            $('a[href*="#"]:not([href="#"])').click(function () {
+                if (location.pathname.replace(/^\//, '') == this.pathname.replace(/^\//, '') && location.hostname == this.hostname) {
+                    var target = $(this.hash);
+                    target = target.length ? target : $('[name=' + this.hash.slice(1) + ']');
+                    if (target.length) {
+                        $('html, body').animate({
+                            scrollTop: target.offset().top
+                        }, 800);
+                        return false;
+                    }
+                }
+            });
+        });
     },
 
-    homePageAnimation: function(newSection, bool , falling){
+    homePageAnimation: function (newSection, bool, falling) {
         window.isAnimating = true;
         newSection = newSection == '' ? '' : newSection;
         var self = this;
@@ -5803,7 +5808,7 @@ module.exports = {
             if (newSection != window.location.pathname.split('/')[1] && bool) {
                 //add the new page to the window.history
                 //if the new page was triggered by a 'popstate' event, don't add it
-                if(newSection == ''){
+                if (newSection == '') {
                     window.history.pushState({path: '/'}, '', '/');
                 }
                 else {
@@ -5811,24 +5816,24 @@ module.exports = {
                 }
             }
             // or put falling.js in here.
-            if(falling != null && $('#landing-container').length){
-                    falling();
+            if (falling != null && $('#landing-container').length) {
+                falling();
             }
             $(document).foundation();
         });
     },
 
-    resetAfterAnimation: function(newSection) {
+    resetAfterAnimation: function (newSection) {
         //once the new section animation is over, remove the old section and make the new one scrollable
         console.log(newSection);
-        if($('.cd-home-section').length && !newSection.hasClass('cd-home-section')){
+        if ($('.cd-home-section').length && !newSection.hasClass('cd-home-section')) {
             console.log('Should not have been called.');
             newSection.removeClass('overflow-hidden').prev('.cd-home-section').remove();
         }
         else {
             newSection.removeClass('overflow-hidden').prev('.cd-section').remove();
         }
-		window.isAnimating =  false;
+        window.isAnimating = false;
     }
 };
 },{"./falling":9,"./middleware/api":10}]},{},[1]);

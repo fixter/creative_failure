@@ -47,6 +47,11 @@ var calloutFadeOut = function (elem) {
         });
     }
 };
+var contactClose = function(){
+    return function(){
+        $('#contact-form').foundation('close');
+    }
+};
 
 // Form submit.
 $('form').on('formvalid.zf.abide', function (e, frm) {
@@ -63,17 +68,26 @@ $('form').on('formvalid.zf.abide', function (e, frm) {
         })
         .end(function (err, res) {
             frm.foundation('resetForm');
-            if (err || !res.ok) {
+            if (err || !res.ok || res.body['error'] != null) {
                 //failed email
+
+                var errMessage = res.body != null && res.body['error'] != null ? res.body['error'] : 'Email failed. Please try again later.';
+                $('#failed-message').html(errMessage);
                 window.MotionUI.animateIn($('#failed-email'), 'fade-in', function () {
                     // set up fade out.
-                    window.setTimeout(calloutFadeOut($('#failed-email')), 2000);
+                    window.setTimeout(calloutFadeOut($('#failed-email')), 1500);
+                    window.setTimeout(function(){
+                        return function(){
+                            $('#failed-message').html('');
+                        }
+                    }, 1500)
                 });
             }
             else {
                 window.MotionUI.animateIn($('#successful-email'), 'fade-in', function () {
                     // set up fade out
-                    window.setTimeout(calloutFadeOut($('#successful-email')), 2000)
+                    window.setTimeout(calloutFadeOut($('#successful-email')), 1500);
+                    window.setTimeout(contactClose(), 1500);
                 });
             }
         });

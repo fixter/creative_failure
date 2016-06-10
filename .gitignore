@@ -3,7 +3,7 @@ node_modules/
 bower_components/
 #static/build
 ENV/
-
+sengridapikey.txt
 # Elastic Beanstalk Files
 
 .elasticbeanstalk/*

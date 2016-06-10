@@ -5724,9 +5724,27 @@ module.exports = {
             })
         }
 
-        var audioPage = $('#audio-container');
-        if (audioPage != null && audioPage.length) {
-            $('.top-bar-title').on('click', 'a', function (event) {
+        var topBar = $('.top-bar-title');
+        if (topBar != null && topBar.length) {
+            topBar.on('click', 'a', function (event) {
+                event.preventDefault();
+                var target = $(this);
+                var sectionTarget = target.data('menu');
+                if (!target.hasClass('selected') && !window.isAnimating) {
+                    if (sectionTarget == 'index') {
+                        self.homePageAnimation('', true, falling.falling);
+                    }
+                    else {
+                        self.triggerAnimation(sectionTarget, true);
+                    }
+                }
+                window.firstLoad = true;
+            });
+        }
+
+        var transitionButtons = $('.pageTransition');
+        if (transitionButtons != null && transitionButtons.length) {
+            transitionButtons.on('click', function (event) {
                 event.preventDefault();
                 var target = $(this);
                 var sectionTarget = target.data('menu');
@@ -5747,7 +5765,7 @@ module.exports = {
         if (closecover != null && closecover.length) {
             // uses Google polyfill for dialog element in non-supporting browsers
             // (https://github.com/GoogleChrome/dialog-polyfill)
-            function showImage (e) {
+            function showImage(e) {
                 e.preventDefault();
                 coverimage.setAttribute("src", this.getAttribute("href"));
                 coverimage.setAttribute("alt", this.querySelector("img").getAttribute("alt"));

@@ -6,6 +6,7 @@ var falling = require('./falling');
 
 module.exports = {
     triggerAnimation: function (newSection, bool) {
+        window.iframeLoaded = false;
         window.isAnimating = true;
         newSection = newSection == '' ? '' : newSection;
         var self = this;
@@ -15,6 +16,13 @@ module.exports = {
             section.prev('.visible').removeClass('visible').end().addClass('visible').on('webkitTransitionEnd otransitionend oTransitionEnd msTransitionEnd transitionend', function () {
                 self.resetAfterAnimation(section);
                 // either put faling.js in here
+                window.setTimeout(function () {
+                    if ($('#audio-container').length) {
+                        window.MotionUI.animateOut($('.sc-text'), 'fade-out', function () {
+                            console.log('Sound Cloud Player revealed.');
+                        });
+                    }
+                }, 500);
                 self.configureIndexTransitions();
             });
 
@@ -135,10 +143,20 @@ module.exports = {
                 }
             });
         });
+
+        var iframe = $('#soundCloudPlayer');
+        if (iframe != null && iframe.length) {
+            iframe.on('load', function () {
+                window.iframeLoaded = true;
+                console.log('IFrame loaded.');
+            });
+        }
+
     },
 
     homePageAnimation: function (newSection, bool, falling) {
         window.isAnimating = true;
+        window.iframeLoaded = false;
         newSection = newSection == '' ? '' : newSection;
         var self = this;
 

@@ -136,8 +136,10 @@ h2 {
   .sc-text{
     position: absolute;
     top:43vh;
-    z-index: -20;
+    z-index: 20;
     width: 100%;
+    background-color: $cf-cream;
+    height: 100%;
     p{
       color: $cf-rust;
     }

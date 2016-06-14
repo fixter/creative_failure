@@ -12,6 +12,7 @@ var mainContent = $('#main-content');
 window.mainContent = mainContent;
 window.isAnimating = isAnimating;
 window.firstLoad = firstLoad;
+window.iframeLoaded = false;
 
 var transitions = require('./transitions');
 
@@ -47,8 +48,8 @@ var calloutFadeOut = function (elem) {
         });
     }
 };
-var contactClose = function(){
-    return function(){
+var contactClose = function () {
+    return function () {
         $('#contact-form').foundation('close');
     }
 };
@@ -76,8 +77,8 @@ $('form').on('formvalid.zf.abide', function (e, frm) {
                 window.MotionUI.animateIn($('#failed-email'), 'fade-in', function () {
                     // set up fade out.
                     window.setTimeout(calloutFadeOut($('#failed-email')), 1500);
-                    window.setTimeout(function(){
-                        return function(){
+                    window.setTimeout(function () {
+                        return function () {
                             $('#failed-message').html('');
                         }
                     }, 1500)
@@ -99,4 +100,14 @@ $('form').on('formvalid.zf.abide', function (e, frm) {
 
 if ($('#landing-container').length) {
     falling.falling();
+}
+
+if ($('#audio-container').length) {
+    window.setTimeout(function () {
+        if ($('#audio-container').length) {
+            window.MotionUI.animateOut($('.sc-text'), 'fade-out', function () {
+                console.log('Sound Cloud Player revealed.');
+            });
+        }
+    }, 500);
 }

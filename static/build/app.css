@@ -304,8 +304,10 @@ h2 {
   .sect .sc-text {
     position: absolute;
     top: 43vh;
-    z-index: -20;
-    width: 100%; }
+    z-index: 20;
+    width: 100%;
+    background-color: #F9FFC4;
+    height: 100%; }
     .sect .sc-text p {
       color: #A93421; }
   @media only screen and (max-width: 645px) {

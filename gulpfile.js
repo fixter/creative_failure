@@ -38,6 +38,8 @@ gulp.task('foundation', function () {
         .pipe(gulp.dest('static/build'));
     gulp.src('bower_components/jquery/dist/jquery.min.js')
         .pipe(gulp.dest('static/build'));
+    gulp.src('bower_components/motion-ui/dist/motion-ui.min.js')
+        .pipe(gulp.dest('static/build'));
 });
 
 gulp.task('react', function() {
@@ -51,14 +53,10 @@ gulp.task('react', function() {
         .pipe(gulp.dest('static/build'));
 });
 
-gulp.task('tmpFlipclock', function(){
-   gulp.src('node_modules/flipclock/compiled/flipclock.css')
-       .pipe(gulp.dest('static/build'));
-});
 
 gulp.task('watch', function(){
     gulp.watch(['static/**/*.scss'], ['sass']);
     gulp.watch(['static/**/*.js', '!static/build/*.js'], ['react']);
 });
 
-gulp.task('default', ['watch', 'sass', 'react']);
+gulp.task('default', ['watch', 'sass', 'react', 'foundation']);

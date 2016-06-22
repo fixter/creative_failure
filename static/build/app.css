@@ -231,10 +231,12 @@ h2 {
 
 #head-pad {
   margin-top: 50px;
+  min-height: 60vh !important;
+  height: 60vh;
   padding: 0; }
   #head-pad iframe {
     width: 100%;
-    height: 90vh; }
+    height: 100%; }
   #head-pad .arrow {
     width: 100%;
     position: absolute;

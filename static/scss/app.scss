@@ -3,7 +3,11 @@
 @import 'settings';
 @import 'foundation';
 @import 'motion-ui';
-@import 'underConstruction';
+@import 'landing-page';
+@import 'audio-page';
+@import 'design-page';
+@import 'transitions';
+@import 'contact-form';
 
 @include foundation-global-styles;
 //@include foundation-grid;

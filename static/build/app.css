@@ -264,12 +264,8 @@ h2 {
   min-height: 50px; }
 
 @media only screen and (max-width: 645px) {
-  .cream-top {
-    border-top: 0vh solid #F9FFC4; }
-  .blue-top {
-    border-top: 0vh solid #F9FFC4; }
-  .footer #cream {
-    background-color: #081D35; } }
+  .menu {
+    width: 10vw !important; } }
 
 .top-bar {
   position: fixed;
@@ -295,8 +291,6 @@ h2 {
     width: 32px;
     margin-top: 4vh;
     z-index: 100; }
-  .top-bar .menu {
-    width: 10vw !important; }
 
 .sect {
   min-height: 90vh;

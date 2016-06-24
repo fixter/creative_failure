@@ -78,16 +78,8 @@ h2 {
 }
 
 @media only screen and (max-width: 645px) {
-    .cream-top {
-        border-top: .0vh solid $cf-cream;
-    }
-    .blue-top {
-        border-top: .0vh solid $cf-cream;
-    }
-    .footer{
-      #cream{
-        background-color: $cf-blue;
-      }
+    .menu{
+      width: 10vw !important;
     }
 }
 
@@ -121,9 +113,6 @@ h2 {
     width: 32px;
     margin-top: 4vh;
     z-index: 100;
-  }
-  .menu{
-    width: 10vw !important;
   }
 }
 

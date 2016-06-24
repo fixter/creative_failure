@@ -111,7 +111,7 @@ body {
       position: absolute;
       text-align: center;
       width: 100%;
-      margin-top: 7vh; }
+      margin-top: 5vh; }
     .home-container .top-box .logo-box {
       display: block;
       position: absolute;
@@ -229,10 +229,12 @@ h2 {
   line-height: 32px;
   padding-left: 20px; }
 
+.audio-sect {
+  height: 60vh; }
+
 #head-pad {
   margin-top: 50px;
   min-height: 60vh !important;
-  height: 60vh;
   padding: 0; }
   #head-pad iframe {
     width: 100%;

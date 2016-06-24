@@ -35,6 +35,14 @@ h2 {
   line-height: 32px;
   padding-left: 20px;
 }
+@media only screen and (max-width: 320px) {
+  #headerText{
+    font-size: 18px !important;
+  }
+  footer{
+    display: none!important;
+  }
+}
 .audio-sect{
   height: 60vh;
 }
@@ -113,6 +121,9 @@ h2 {
     width: 32px;
     margin-top: 4vh;
     z-index: 100;
+  }
+  .menu{
+    width: 10vw !important;
   }
 }
 

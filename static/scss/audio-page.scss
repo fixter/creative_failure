@@ -35,11 +35,20 @@ h2 {
   line-height: 32px;
   padding-left: 20px;
 }
-
+@media only screen and (max-width: 320px) {
+  #headerText{
+    font-size: 18px !important;
+  }
+  footer{
+    display: none!important;
+  }
+}
+.audio-sect{
+  height: 60vh;
+}
 #head-pad{
   margin-top: 50px;
   min-height: 60vh !important;
-  height: 60vh;
   padding: 0;
   iframe{
      width: 100%;
@@ -69,16 +78,8 @@ h2 {
 }
 
 @media only screen and (max-width: 645px) {
-    .cream-top {
-        border-top: .0vh solid $cf-cream;
-    }
-    .blue-top {
-        border-top: .0vh solid $cf-cream;
-    }
-    .footer{
-      #cream{
-        background-color: $cf-blue;
-      }
+    .menu{
+      width: 10vw !important;
     }
 }
 

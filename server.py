@@ -1,11 +1,13 @@
 from flask import Flask, render_template, request, jsonify, make_response
 import utils.EmailClient as EmailClient
 from conifg import SENDGRID_API_KEY
+import uuid
+import os
 
 application = Flask(__name__)
 app = application
 app.debug = True
-app.secret_key = 'Add secret key in a config file.'
+app.secret_key = uuid.uuid1() if os.environ('ENV', 'TESTING') == 'PROD' else 'Add secret key in a config file.'
 
 
 @app.route('/audio')

@@ -5,6 +5,7 @@ bower_components/
 ENV/
 venv/
 sengridapikey.txt
+config/sparkpostkey.txt
 # Elastic Beanstalk Files
 
 .elasticbeanstalk/*

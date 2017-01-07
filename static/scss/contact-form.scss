@@ -7,10 +7,17 @@
   }
   background-color: #081C38;
   button {
-    background-color: #C44831;
     color: #FFED75;
   }
   textarea {
     height: 50%;
   }
+  .large{
+    background-color: $cf-rust;
+    &:hover{
+      background-color: #FFED75;
+      color: $cf-rust;
+    }
+  }
+
 }

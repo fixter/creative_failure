@@ -1,7 +1,8 @@
 @font-face { font-family: Futura; src: url('Futura.ttc'); }
 
 body,a,h1,h2,h3,h4,h5,h6,li,ul,ol,label,tr,td,.button {
-    font-family: "Futura","Helvetica Neue",Helvetica,Arial,sans-serif !important;
+    font-family: 'Futura', "futura-pt", Helvetica,Arial,sans-serif !important;
+    font-weight: 500 !important;
 }
 
 $cf-green: #99AF88;
@@ -97,7 +98,6 @@ body {
         text-transform: uppercase;
         font-size: 28px!important;
         padding-top: 42%;
-        font-family: Futura;
       }
 
     }
@@ -158,7 +158,6 @@ body {
       }
     }
     h3{
-      font-family: Futura, sans-serif;
       color: $cf-cream;
       font-size: 24px;
       margin:0 30px;

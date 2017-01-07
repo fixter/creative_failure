@@ -23,7 +23,6 @@
 h2 {
   text-transform: uppercase;
   font-size: 28px!important;
-  font-family: Futura;
 }
 .menu-icon{
   height: 28px!important;
@@ -122,13 +121,11 @@ h2 {
   padding: 2vh 2vw;
   p{
     color: $cf-cream;
-    font-family: Futura;
     font-size: 20px;
     line-height: 30px;
   }
   h1{
     color: $cf-cream;
-    font-family: Futura;
     font-size: 100px;
     text-align: center;
   }
@@ -154,7 +151,6 @@ h2 {
 
   h2{
     color: $cf-cream;
-    font-family: Futura;
     font-size: 32px;
   }
   span{
@@ -190,21 +186,19 @@ h2 {
 }
 
 .contactSect{
-  min-height: 30vh;
   background-color: $cf-rust !important;
   position: relative;
   padding: 2vh 2vw;
   text-align: center;
+  min-height: 30vh;
 
   p{
     color: $cf-cream;
-    font-family: Futura;
     font-size: 20px;
     line-height: 30px;
   }
   h1{
     color: $cf-cream;
-    font-family: Futura;
     font-size: 100px;
     text-align: center;
   }
@@ -216,7 +210,6 @@ h2 {
 
   h2{
     color: $cf-cream;
-    font-family: Futura;
     font-size: 32px;
   }
 }
@@ -247,9 +240,9 @@ h2 {
 .circular {
 	width: 200px;
 	height: 200px;
-	border-radius: 150px;
-	-webkit-border-radius: 150px;
-	-moz-border-radius: 150px;
+	border-radius: 30px;
+	-webkit-border-radius: 30px;
+	-moz-border-radius: 30px;
   background-size: cover;
   margin: 0 auto;
   margin-bottom: 1vh;

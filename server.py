@@ -9,7 +9,7 @@ configure_app()
 
 application = Flask(__name__)
 app = application
-app.debug = True
+app.debug = os.getenv('ENV', 'TESTING') != 'PROD'
 app.secret_key = uuid.uuid1() if os.getenv('ENV', 'TESTING') == 'PROD' else 'secret_key'
 
 

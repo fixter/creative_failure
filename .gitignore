@@ -6,6 +6,7 @@ ENV/
 venv/
 sengridapikey.txt
 config/sparkpostkey.txt
+*.pyc
 # Elastic Beanstalk Files
 
 .elasticbeanstalk/*
